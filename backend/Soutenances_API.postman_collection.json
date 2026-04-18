@@ -1,0 +1,454 @@
+{
+  "info": {
+    "name": "Gestion des Soutenances API",
+    "description": "Collection complète pour tester l'API REST de gestion des soutenances",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" }
+  ],
+  "item": [
+
+    {
+      "name": "1 - Étudiants",
+      "item": [
+        {
+          "name": "Lister tous les étudiants",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/etudiants"
+          }
+        },
+        {
+          "name": "Créer étudiant 1",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/etudiants",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Bensalem\",\n  \"prenom\": \"Walid\",\n  \"email\": \"walid.bensalem@univ.dz\",\n  \"matricule\": \"20210010\",\n  \"filiere\": \"Informatique\",\n  \"niveau\": \"M2\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Créer étudiant 2",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/etudiants",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Mansouri\",\n  \"prenom\": \"Rania\",\n  \"email\": \"rania.mansouri@univ.dz\",\n  \"matricule\": \"20210011\",\n  \"filiere\": \"ISIL\",\n  \"niveau\": \"M2\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Consulter étudiant par ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/etudiants/1"
+          }
+        },
+        {
+          "name": "Modifier étudiant",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/etudiants/1",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Bensalem\",\n  \"prenom\": \"Walid\",\n  \"email\": \"walid.bensalem@univ.dz\",\n  \"matricule\": \"20210010\",\n  \"filiere\": \"Informatique\",\n  \"niveau\": \"M2\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Supprimer étudiant",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/etudiants/1"
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "2 - Encadrants",
+      "item": [
+        {
+          "name": "Lister tous les encadrants",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/encadrants"
+          }
+        },
+        {
+          "name": "Créer encadrant (Président)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/encadrants",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Dridi\",\n  \"prenom\": \"Omar\",\n  \"email\": \"omar.dridi@univ.dz\",\n  \"grade\": \"PR\",\n  \"specialite\": \"Systèmes distribués\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Créer encadrant (Rapporteur)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/encadrants",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Hadjadj\",\n  \"prenom\": \"Nadia\",\n  \"email\": \"nadia.hadjadj@univ.dz\",\n  \"grade\": \"MCA\",\n  \"specialite\": \"Génie Logiciel\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Créer encadrant (Examinateur)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/encadrants",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Kaddour\",\n  \"prenom\": \"Bilel\",\n  \"email\": \"bilel.kaddour@univ.dz\",\n  \"grade\": \"MCB\",\n  \"specialite\": \"Base de données\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Consulter encadrant par ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/encadrants/1"
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "3 - Salles",
+      "item": [
+        {
+          "name": "Lister toutes les salles",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/salles"
+          }
+        },
+        {
+          "name": "Créer salle",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/salles",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Salle C301\",\n  \"capacite\": 20,\n  \"localisation\": \"Bâtiment C, 3ème étage\",\n  \"disponible\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Consulter salle par ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/salles/1"
+          }
+        },
+        {
+          "name": "Modifier disponibilité salle",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/salles/1",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Salle A101\",\n  \"capacite\": 20,\n  \"localisation\": \"Bâtiment A, RDC\",\n  \"disponible\": false\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "4 - Soutenances",
+      "item": [
+        {
+          "name": "Lister toutes les soutenances",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/soutenances"
+          }
+        },
+        {
+          "name": "Planifier soutenance ✅",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/soutenances",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Plateforme e-learning avec recommandation IA\",\n  \"dateHeure\": \"2026-06-15T09:00:00\",\n  \"dureeMinutes\": 30,\n  \"etudiantId\": 1,\n  \"encadrantId\": 1,\n  \"salleId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Planifier soutenance 2 ✅",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/soutenances",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Application mobile de gestion RH\",\n  \"dateHeure\": \"2026-06-15T10:00:00\",\n  \"dureeMinutes\": 30,\n  \"etudiantId\": 2,\n  \"encadrantId\": 2,\n  \"salleId\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "Planifier soutenance – conflit salle ❌",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/soutenances",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Test conflit salle\",\n  \"dateHeure\": \"2026-06-15T09:15:00\",\n  \"dureeMinutes\": 30,\n  \"etudiantId\": 3,\n  \"encadrantId\": 3,\n  \"salleId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Planifier soutenance – conflit encadrant ❌",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/soutenances",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Test conflit encadrant\",\n  \"dateHeure\": \"2026-06-15T09:00:00\",\n  \"dureeMinutes\": 30,\n  \"etudiantId\": 3,\n  \"encadrantId\": 1,\n  \"salleId\": 3\n}"
+            }
+          }
+        },
+        {
+          "name": "Consulter soutenance par ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/soutenances/1"
+          }
+        },
+        {
+          "name": "Soutenances d'un étudiant",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/soutenances/etudiant/1"
+          }
+        },
+        {
+          "name": "Modifier soutenance",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/soutenances/1",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Titre modifié\",\n  \"dateHeure\": \"2026-06-15T09:00:00\",\n  \"dureeMinutes\": 45,\n  \"etudiantId\": 1,\n  \"encadrantId\": 1,\n  \"salleId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Changer statut → EN_COURS",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/soutenances/1/statut?statut=EN_COURS",
+              "query": [{ "key": "statut", "value": "EN_COURS" }]
+            }
+          }
+        },
+        {
+          "name": "Changer statut → TERMINEE",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/soutenances/1/statut?statut=TERMINEE",
+              "query": [{ "key": "statut", "value": "TERMINEE" }]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "5 - Jurys",
+      "item": [
+        {
+          "name": "Affecter jury à soutenance 1",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/jurys",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"soutenanceId\": 1,\n  \"presidentId\": 2,\n  \"rapporteurId\": 3,\n  \"examinateurId\": 4\n}"
+            }
+          }
+        },
+        {
+          "name": "Affecter jury – membres identiques ❌",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/jurys",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"soutenanceId\": 2,\n  \"presidentId\": 2,\n  \"rapporteurId\": 2,\n  \"examinateurId\": 4\n}"
+            }
+          }
+        },
+        {
+          "name": "Consulter jury d'une soutenance",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/jurys/soutenance/1"
+          }
+        },
+        {
+          "name": "Supprimer jury",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/jurys/soutenance/1"
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "6 - Notes",
+      "item": [
+        {
+          "name": "Saisir note – Président",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/notes",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"soutenanceId\": 1,\n  \"evaluateurId\": 2,\n  \"roleJury\": \"PRESIDENT\",\n  \"noteExpose\": 15.5,\n  \"noteRapport\": 16.0,\n  \"noteQuestions\": 14.0,\n  \"commentaire\": \"Bon travail, présentation claire\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Saisir note – Rapporteur",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/notes",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"soutenanceId\": 1,\n  \"evaluateurId\": 3,\n  \"roleJury\": \"RAPPORTEUR\",\n  \"noteExpose\": 14.0,\n  \"noteRapport\": 15.0,\n  \"noteQuestions\": 13.5,\n  \"commentaire\": \"Rapport bien structuré\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Saisir note – Examinateur",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/notes",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"soutenanceId\": 1,\n  \"evaluateurId\": 4,\n  \"roleJury\": \"EXAMINATEUR\",\n  \"noteExpose\": 13.0,\n  \"noteRapport\": 14.5,\n  \"noteQuestions\": 12.0,\n  \"commentaire\": \"Questions bien gérées\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Saisir note – non-membre jury ❌",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/notes",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"soutenanceId\": 1,\n  \"evaluateurId\": 1,\n  \"roleJury\": \"PRESIDENT\",\n  \"noteExpose\": 10.0,\n  \"noteRapport\": 10.0,\n  \"noteQuestions\": 10.0\n}"
+            }
+          }
+        },
+        {
+          "name": "Consulter notes d'une soutenance",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/notes/soutenance/1"
+          }
+        },
+        {
+          "name": "Modifier une note",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/notes/1",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"soutenanceId\": 1,\n  \"evaluateurId\": 2,\n  \"roleJury\": \"PRESIDENT\",\n  \"noteExpose\": 16.0,\n  \"noteRapport\": 17.0,\n  \"noteQuestions\": 15.0,\n  \"commentaire\": \"Note corrigée\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "7 - Résultats",
+      "item": [
+        {
+          "name": "Calculer moyenne + mention",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/resultats/soutenance/1/calculer"
+          }
+        },
+        {
+          "name": "Calculer – notes manquantes ❌",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/resultats/soutenance/2/calculer"
+          }
+        },
+        {
+          "name": "Consulter résultat (jury/admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/resultats/soutenance/1"
+          }
+        },
+        {
+          "name": "Publier le résultat",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/resultats/soutenance/1/publier"
+          }
+        },
+        {
+          "name": "Consulter résultat (étudiant) ✅",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/resultats/etudiant/1"
+          }
+        },
+        {
+          "name": "Consulter résultat non publié (étudiant) ❌",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/resultats/etudiant/2"
+          }
+        },
+        {
+          "name": "Lister tous les résultats publiés",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/resultats/publies"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-GestionSoutenancesApplication<gestion-soutenances>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.soutenance.GestionSoutenancesApplication",
+            "projectName": "gestion-soutenances",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
