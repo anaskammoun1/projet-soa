@@ -3,7 +3,7 @@ package com.soutenance.orchestrator;
 import com.soutenance.features.encadrant.entity.Encadrant;
 import com.soutenance.features.encadrant.service.EncadrantService;
 import com.soutenance.features.jury.entity.Jury;
-import com.soutenance.features.jury.service.JuryService;
+import com.soutenance.features.jury.service.Interface.JuryService;
 import com.soutenance.features.soutenance.entity.Soutenance;
 import com.soutenance.features.soutenance.service.SoutenanceService;
 import lombok.RequiredArgsConstructor;

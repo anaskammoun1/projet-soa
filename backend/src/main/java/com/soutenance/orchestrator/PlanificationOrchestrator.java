@@ -1,13 +1,13 @@
 package com.soutenance.orchestrator;
 
 import com.soutenance.features.encadrant.entity.Encadrant;
-import com.soutenance.features.encadrant.service.EncadrantService;
+import com.soutenance.features.encadrant.service.Interface.EncadrantService;
 import com.soutenance.features.etudiant.entity.Etudiant;
-import com.soutenance.features.etudiant.service.EtudiantService;
-import com.soutenance.features.salle.entity.Salle;
-import com.soutenance.features.salle.service.SalleService;
-import com.soutenance.features.soutenance.entity.Soutenance;
-import com.soutenance.features.soutenance.service.SoutenanceService;
+import com.soutenance.features.etudiant.service.Interface.EtudiantService;
+import com.soutenance.features.salle.entity.Interface.Salle;
+import com.soutenance.features.salle.service.Interface.SalleService;
+import com.soutenance.features.soutenance.entity.Interface.Soutenance;
+import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

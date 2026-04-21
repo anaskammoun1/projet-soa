@@ -3,7 +3,7 @@ package com.soutenance.orchestrator;
 import com.soutenance.features.encadrant.entity.Encadrant;
 import com.soutenance.features.encadrant.service.EncadrantService;
 import com.soutenance.features.note.entity.Note;
-import com.soutenance.features.note.service.NoteService;
+import com.soutenance.features.note.service.Interface.NoteService;
 import com.soutenance.features.resultat.service.ResultatService;
 import com.soutenance.features.soutenance.entity.Soutenance;
 import com.soutenance.features.soutenance.service.SoutenanceService;
