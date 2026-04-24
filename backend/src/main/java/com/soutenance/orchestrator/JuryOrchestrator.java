@@ -5,7 +5,7 @@ import com.soutenance.features.encadrant.service.EncadrantService;
 import com.soutenance.features.jury.entity.Jury;
 import com.soutenance.features.jury.service.Interface.JuryService;
 import com.soutenance.features.soutenance.entity.Soutenance;
-import com.soutenance.features.soutenance.service.SoutenanceService;
+import com.soutenance.features.soutenance.service.Implementation.SoutenanceServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class JuryOrchestrator {
 
     private final EncadrantService encadrantService;
-    private final SoutenanceService soutenanceService;
+    private final SoutenanceServiceImpl soutenanceService;
     private final JuryService juryService;
 
     public Jury createJury(Long soutenanceId,

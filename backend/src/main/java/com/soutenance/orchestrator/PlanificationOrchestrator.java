@@ -4,9 +4,9 @@ import com.soutenance.features.encadrant.entity.Encadrant;
 import com.soutenance.features.encadrant.service.Interface.EncadrantService;
 import com.soutenance.features.etudiant.entity.Etudiant;
 import com.soutenance.features.etudiant.service.Interface.EtudiantService;
-import com.soutenance.features.salle.entity.Interface.Salle;
+import com.soutenance.features.salle.entity.Salle;
 import com.soutenance.features.salle.service.Interface.SalleService;
-import com.soutenance.features.soutenance.entity.Interface.Soutenance;
+import com.soutenance.features.soutenance.entity.Soutenance;
 import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -28,8 +28,8 @@ public class PlanificationOrchestrator {
         Encadrant encadrant = encadrantService.getOrThrow(s.getEncadrant().getId());
         Salle salle = salleService.getOrThrow(s.getSalle().getId());
 
-        LocalDateTime debut = s.getDateHeure();
-        LocalDateTime fin = debut.plusMinutes(s.getDureeMinutes());
+        LocalDateTime debut = s.getDate();
+        LocalDateTime fin = debut.plusMinutes(s.getDuree());
 
         if (!salle.isDisponible()) {
             throw new RuntimeException("Salle non disponible");

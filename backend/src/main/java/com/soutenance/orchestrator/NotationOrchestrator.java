@@ -6,7 +6,7 @@ import com.soutenance.features.note.entity.Note;
 import com.soutenance.features.note.service.Interface.NoteService;
 import com.soutenance.features.resultat.service.ResultatService;
 import com.soutenance.features.soutenance.entity.Soutenance;
-import com.soutenance.features.soutenance.service.SoutenanceService;
+import com.soutenance.features.soutenance.service.Implementation.SoutenanceServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class NotationOrchestrator {
 
     private final EncadrantService encadrantService;
-    private final SoutenanceService soutenanceService;
+    private final SoutenanceServiceImpl soutenanceService;
     private final NoteService noteService;
     private final ResultatService resultatService;
 
