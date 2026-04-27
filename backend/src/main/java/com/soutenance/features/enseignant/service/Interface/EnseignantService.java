@@ -1,6 +1,7 @@
 package com.soutenance.features.enseignant.service.Interface;
 
 import com.soutenance.features.enseignant.dto.EnseignantDTO;
+import com.soutenance.features.enseignant.entity.Enseignant;
 
 import java.util.List;
 
@@ -15,4 +16,6 @@ public interface EnseignantService {
     EnseignantDTO update(Long id, EnseignantDTO dto);
 
     void delete(Long id);
+
+    Enseignant getOrThrow(Long id);
 }

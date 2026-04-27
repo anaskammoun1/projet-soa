@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,6 +27,7 @@ public class Soutenance {
 
     private int duree;
 
+    @Enumerated(EnumType.STRING)
     private StatutSoutenance statut;
 
     @ManyToOne

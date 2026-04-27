@@ -3,13 +3,14 @@ package com.soutenance.features.salle.service.Implementation;
 import com.soutenance.features.salle.dto.SalleDTO;
 import com.soutenance.features.salle.entity.Salle;
 import com.soutenance.features.salle.repository.SalleRepository;
+import com.soutenance.features.salle.service.Interface.SalleService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class SalleServiceImpl {
+public class SalleServiceImpl implements SalleService {
 
     private final SalleRepository repository;
 

@@ -1,24 +1,60 @@
-# Maven / Java
+# Build artifacts
 **/target/
 **/build/
+**/out/
 **/*.class
+**/*.jar
+**/*.war
+**/*.ear
 
-# Logs
+# Logs and runtime output
 *.log
 logs/
+**/logs/
+hs_err_pid*
+replay_pid*
 
-# Environment files
+# Environment and secrets
 .env
 .env.*
+**/.env
+**/.env.*
 !.env.example
+!**/.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
 
-# OS / IDE
-.DS_Store
-Thumbs.db
+# IDE and editor files
 .idea/
 .vscode/
 *.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
 
-# Temporary
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local tools and caches
+.tools/
+**/.tools/
+.m2/
+**/.m2/
+.gradle/
+**/.gradle/
+
+# Temporary files
 *.swp
 *.swo
+*.tmp
+*.bak
+*.orig
+.fake

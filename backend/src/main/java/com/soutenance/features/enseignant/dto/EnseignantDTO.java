@@ -10,6 +10,7 @@ public class EnseignantDTO {
     private Long id;
     private String nom;
     private String prenom;
-    private int student_id;
-    private float note;
+    private String email;
+    private String grade;
+    private String specialite;
 }

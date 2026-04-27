@@ -1,36 +1,41 @@
 package com.soutenance.features.note.controller;
 
 import com.soutenance.features.note.dto.NoteDTO;
-import com.soutenance.features.note.service.Interface.NoteService;
-import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
+import com.soutenance.orchestrator.NotationOrchestrator;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/notes")
+@RequiredArgsConstructor
 public class NoteController {
 
-    private final NoteService noteService;
-
-    public NoteController(NoteService noteService) {
-        this.noteService = noteService;
-    }
-
-    @GetMapping("/soutenance/{soutenanceId}")
-    public List<NoteDTO> findBySoutenance(@PathVariable Long soutenanceId) {
-        return noteService.findBySoutenance(soutenanceId);
-    }
+    private final NotationOrchestrator notationOrchestrator;
 
     @PostMapping
-    public NoteDTO saisirNote(@Valid @RequestBody NoteDTO dto) {
-        return noteService.saisirNote(dto);
+    @PreAuthorize("@ownershipSecurity.canEvaluate(#dto.evaluateurId)")
+    public NoteDTO saisir(@RequestBody NoteDTO dto) {
+        return notationOrchestrator.saisirNote(dto);
     }
 
     @PutMapping("/{id}")
-    public NoteDTO modifierNote(@PathVariable Long id, @Valid @RequestBody NoteDTO dto) {
-        return noteService.modifierNote(id, dto);
+    @PreAuthorize("@ownershipSecurity.canEvaluate(#dto.evaluateurId)")
+    public NoteDTO modifier(@PathVariable Long id, @RequestBody NoteDTO dto) {
+        return notationOrchestrator.modifierNote(id, dto);
+    }
+
+    @GetMapping("/soutenance/{soutenanceId}")
+    @PreAuthorize("@ownershipSecurity.canAccessNotes(#soutenanceId)")
+    public List<NoteDTO> getBySoutenance(@PathVariable Long soutenanceId) {
+        return notationOrchestrator.getNotesBySoutenance(soutenanceId);
     }
 }
-
-

@@ -1,12 +1,14 @@
 package com.soutenance.features.enseignant.entity;
 
-import com.soutenance.features.etudiant.entity.Etudiant;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Table(name = "enseignants")
@@ -19,16 +21,18 @@ public class Enseignant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String nom;
-    @Column
+
+    @Column(nullable = false)
     private String prenom;
-    @Column
-    private int student_id;
-    @Column
-    private float note;
-    @OneToMany(mappedBy = "encadrant")
-    private List<Etudiant> etudiants;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    private String grade;
+
+    private String specialite;
 }
 
 

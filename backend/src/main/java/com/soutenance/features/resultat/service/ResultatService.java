@@ -1,11 +1,15 @@
 package com.soutenance.features.resultat.service;
 
+import com.soutenance.exception.BusinessException;
 import com.soutenance.features.resultat.entity.Resultat;
-import com.soutenance.features.resultat.entity.Resultat.Mention;
 import com.soutenance.features.resultat.entity.Resultat.Decision;
+import com.soutenance.features.resultat.entity.Resultat.Mention;
 import com.soutenance.features.resultat.repository.ResultatRepository;
+import com.soutenance.security.audit.AuditService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,14 +21,27 @@ import java.util.Optional;
 public class ResultatService {
 
     private final ResultatRepository resultatRepository;
+    private final AuditService auditService;
 
-    public Resultat calculateResultat(Long soutenanceId, Long etudiantId) {
+    public Resultat calculateResultat(
+            Long soutenanceId,
+            Long etudiantId,
+            Float notePresident,
+            Float noteRapporteur,
+            Float noteExaminateur) {
+
         if (resultatRepository.existsBySoutenanceId(soutenanceId)) {
-            throw new RuntimeException("Result already exists for this soutenance");
+            throw new BusinessException("Resultat deja calcule pour cette soutenance");
         }
 
-        List<Double> notes = List.of(14.0, 15.0, 13.0);
-        double moyenne = calculateMoyenne(notes);
+        if (notePresident == null || noteRapporteur == null || noteExaminateur == null) {
+            throw new BusinessException("Toutes les notes du jury doivent etre saisies avant le calcul du resultat");
+        }
+
+        double moyenne = calculateMoyenne(List.of(
+                notePresident.doubleValue(),
+                noteRapporteur.doubleValue(),
+                noteExaminateur.doubleValue()));
         Mention mention = attributeMention(moyenne);
         Decision decision = determineDecision(moyenne);
 
@@ -53,28 +70,40 @@ public class ResultatService {
         return resultatRepository.findBySoutenanceId(soutenanceId);
     }
 
+    public Optional<Resultat> getPublishedResultatByEtudiantId(Long etudiantId) {
+        return resultatRepository.findByEtudiantId(etudiantId)
+                .filter(Resultat::getPublie);
+    }
+
     public List<Resultat> getPublishedResultats() {
         return resultatRepository.findByPublieTrue();
     }
 
     public Resultat validateResultat(Long id) {
         Resultat resultat = resultatRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Result not found"));
+                .orElseThrow(() -> new BusinessException("Resultat non trouve"));
         resultat.setValide(true);
         return resultatRepository.save(resultat);
     }
 
     public Resultat publishResultat(Long id) {
         Resultat resultat = resultatRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Result not found"));
+                .orElseThrow(() -> new BusinessException("Resultat non trouve"));
 
         if (!Boolean.TRUE.equals(resultat.getValide())) {
-            throw new RuntimeException("Cannot publish unvalidated result");
+            throw new BusinessException("Impossible de publier un resultat non valide");
         }
 
         resultat.setPublie(true);
         resultat.setPublishedAt(LocalDateTime.now());
-        return resultatRepository.save(resultat);
+        Resultat published = resultatRepository.save(resultat);
+        auditService.log(
+                "RESULTAT_PUBLISHED",
+                currentUsername(),
+                null,
+                true,
+                "resultatId=" + published.getId() + ", soutenanceId=" + published.getSoutenanceId());
+        return published;
     }
 
     public ResultatStatistics getStatistics() {
@@ -101,6 +130,11 @@ public class ResultatService {
 
     private Decision determineDecision(Double moyenne) {
         return moyenne >= 10 ? Decision.ADMIS : Decision.AJOURNE;
+    }
+
+    private String currentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null ? authentication.getName() : "system";
     }
 
     @Data
