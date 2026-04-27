@@ -8,11 +8,16 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SoutenanceRepository extends JpaRepository<Soutenance, Long> {
 
     List<Soutenance> findAllByEtudiant_Id(Integer etudiantId);
+
+    Optional<Soutenance> findByTitre(String titre);
+
+    boolean existsByTitre(String titre);
 
     @Query(value = """
         SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END
