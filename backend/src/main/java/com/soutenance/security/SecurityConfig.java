@@ -22,9 +22,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -50,26 +54,45 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/refresh", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/resultats/published", "/api/resultats/publies", "/api/resultats/etudiant/**")
+                        .requestMatchers(HttpMethod.GET, "/api/auth/me")
                         .hasAnyRole("ADMIN", "ENSEIGNANT", "ETUDIANT")
-                        .requestMatchers(HttpMethod.GET, "/api/resultats/*")
+                        .requestMatchers(HttpMethod.GET, "/api/enseignants/me", "/api/encadrants/me")
+                        .hasRole("ENSEIGNANT")
+                        .requestMatchers(HttpMethod.GET, "/api/etudiants/me", "/api/resultats/me")
+                        .hasRole("ETUDIANT")
+                        .requestMatchers(HttpMethod.GET, "/api/soutenances", "/api/soutenances/*", "/api/soutenances/etudiant/**")
                         .hasAnyRole("ADMIN", "ENSEIGNANT", "ETUDIANT")
-                        .requestMatchers(HttpMethod.GET, "/api/soutenances/etudiant/**")
+                        .requestMatchers(HttpMethod.GET, "/api/resultats/etudiant/**")
                         .hasAnyRole("ADMIN", "ENSEIGNANT", "ETUDIANT")
-                        .requestMatchers(HttpMethod.GET, "/api/soutenances/*")
-                        .hasAnyRole("ADMIN", "ENSEIGNANT", "ETUDIANT")
-                        .requestMatchers(HttpMethod.GET, "/api/notes/soutenance/**")
+                        .requestMatchers(HttpMethod.GET, "/api/resultats/soutenance/**", "/api/resultats/published", "/api/resultats/publies")
                         .hasAnyRole("ADMIN", "ENSEIGNANT")
-                        .requestMatchers(HttpMethod.GET, "/api/**")
+                        .requestMatchers(HttpMethod.GET, "/api/notes/soutenance/**")
                         .hasAnyRole("ADMIN", "ENSEIGNANT")
                         .requestMatchers(HttpMethod.POST, "/api/notes/**")
                         .hasAnyRole("ADMIN", "ENSEIGNANT")
                         .requestMatchers(HttpMethod.PUT, "/api/notes/**")
                         .hasAnyRole("ADMIN", "ENSEIGNANT")
+                        .requestMatchers(HttpMethod.GET, "/api/etudiants/*")
+                        .hasAnyRole("ADMIN", "ENSEIGNANT", "ETUDIANT")
+                        .requestMatchers(HttpMethod.GET, "/api/resultats", "/api/resultats/*", "/api/etudiants", "/api/enseignants/**", "/api/encadrants/**", "/api/salles/**", "/api/jurys/**")
+                        .hasRole("ADMIN")
                         .requestMatchers("/api/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://127.0.0.1:4200"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", configuration);
+        return source;
     }
 
     @Bean

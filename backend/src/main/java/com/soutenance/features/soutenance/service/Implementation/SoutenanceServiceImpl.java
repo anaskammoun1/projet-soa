@@ -66,6 +66,14 @@ public class SoutenanceServiceImpl implements SoutenanceService {
     }
 
     @Override
+    public List<SoutenanceDTO> getAssignedToTeacher(Long enseignantId) {
+        return repository.findAllAssignedToTeacher(enseignantId)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public SoutenanceDTO getById(Long id) {
         return toDTO(getOrThrow(id));
     }
@@ -119,17 +127,24 @@ public class SoutenanceServiceImpl implements SoutenanceService {
 
     @Override
     public boolean existsConflitSalle(Long salleId, LocalDateTime date, LocalDateTime fin, Long excludeSoutenanceId) {
-        return repository.existsSalleConflict(salleId, date, fin, excludeSoutenanceId);
+        return repository.countSalleConflicts(salleId, date, fin, excludeSoutenanceId) > 0;
     }
 
     @Override
     public boolean existsConflitEncadrant(Long enseignantId, LocalDateTime date, LocalDateTime fin, Long excludeSoutenanceId) {
-        return repository.existsEnseignantConflict(enseignantId, date, fin, excludeSoutenanceId);
+        return repository.countEnseignantConflicts(enseignantId, date, fin, excludeSoutenanceId) > 0;
     }
 
     @Override
     public boolean existsConflitEtudiant(Integer etudiantId, LocalDateTime date, LocalDateTime fin, Long excludeSoutenanceId) {
-        return repository.existsEtudiantConflict(etudiantId, date, fin, excludeSoutenanceId);
+        return repository.countEtudiantConflicts(etudiantId, date, fin, excludeSoutenanceId) > 0;
+    }
+
+    @Override
+    public boolean isTeacherAssignedToEtudiant(Long enseignantId, Integer etudiantId) {
+        return enseignantId != null
+                && etudiantId != null
+                && repository.countAssignedToTeacherForEtudiant(enseignantId, etudiantId) > 0;
     }
 
     @Override

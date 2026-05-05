@@ -2,6 +2,7 @@ package com.soutenance.features.salle.controller;
 
 import com.soutenance.features.salle.dto.SalleDTO;
 import com.soutenance.features.salle.service.Implementation.SalleServiceImpl;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/salles")
 @CrossOrigin("*")
+@PreAuthorize("hasRole('ADMIN')")
 public class SalleController {
 
     private final SalleServiceImpl service;

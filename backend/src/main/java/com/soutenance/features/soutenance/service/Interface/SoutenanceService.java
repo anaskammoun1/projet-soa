@@ -10,6 +10,7 @@ import java.util.List;
 public interface SoutenanceService {
     SoutenanceDTO create(SoutenanceDTO dto);
     List<SoutenanceDTO> getAll();
+    List<SoutenanceDTO> getAssignedToTeacher(Long enseignantId);
     SoutenanceDTO getById(Long id);
     SoutenanceDTO update(Long id, SoutenanceDTO dto);
     void delete(Long id);
@@ -18,6 +19,7 @@ public interface SoutenanceService {
     boolean existsConflitSalle(Long salleId, LocalDateTime date, LocalDateTime fin, Long excludeSoutenanceId);
     boolean existsConflitEncadrant(Long enseignantId, LocalDateTime date, LocalDateTime fin, Long excludeSoutenanceId);
     boolean existsConflitEtudiant(Integer etudiantId, LocalDateTime date, LocalDateTime fin, Long excludeSoutenanceId);
+    boolean isTeacherAssignedToEtudiant(Long enseignantId, Integer etudiantId);
     Soutenance getOrThrow(Long id);
     Soutenance save(Soutenance s);
 }

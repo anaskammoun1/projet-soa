@@ -8,6 +8,10 @@ import com.soutenance.features.resultat.entity.Resultat;
 import com.soutenance.features.resultat.service.ResultatService;
 import com.soutenance.features.soutenance.entity.Soutenance;
 import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
+import com.soutenance.security.CurrentUserService;
+import com.soutenance.security.Role;
+import com.soutenance.security.user.ApplicationUser;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,8 +33,20 @@ class NotationOrchestratorTest {
     @Mock
     private ResultatService resultatService;
 
+    @Mock
+    private CurrentUserService currentUserService;
+
     @InjectMocks
     private NotationOrchestrator orchestrator;
+
+    @BeforeEach
+    void setUpUser() {
+        when(currentUserService.getCurrentUser()).thenReturn(ApplicationUser.builder()
+                .username("admin")
+                .email("admin@example.local")
+                .role(Role.ADMIN)
+                .build());
+    }
 
     @Test
     void saisirNoteStoresAverageForEvaluatorRole() {

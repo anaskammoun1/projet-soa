@@ -2,10 +2,13 @@ package com.soutenance.security;
 
 import com.soutenance.features.enseignant.entity.Enseignant;
 import com.soutenance.features.etudiant.entity.Etudiant;
+import com.soutenance.features.resultat.repository.ResultatRepository;
 import com.soutenance.features.soutenance.dto.SoutenanceDTO;
 import com.soutenance.features.soutenance.entity.Soutenance;
+import com.soutenance.features.soutenance.repository.SoutenanceRepository;
 import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
 import com.soutenance.orchestrator.PlanificationOrchestrator;
+import com.soutenance.orchestrator.SoutenanceReadOrchestrator;
 import com.soutenance.security.jwt.JwtAuthenticationFilter;
 import com.soutenance.security.jwt.JwtService;
 import com.soutenance.security.user.ApplicationUser;
@@ -27,7 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = com.soutenance.features.soutenance.controller.SoutenanceController.class)
-@Import({SecurityConfig.class, JwtAuthenticationFilter.class, JwtService.class, AppUserDetailsService.class, OwnershipSecurity.class})
+@Import({SecurityConfig.class, JwtAuthenticationFilter.class, JwtService.class, AppUserDetailsService.class, OwnershipSecurity.class, CurrentUserService.class})
 @TestPropertySource(properties = {
         "app.jwt.secret=test_secret_with_more_than_32_characters",
         "app.jwt.expiration-ms=900000"
@@ -45,6 +48,15 @@ class OwnershipAccessControlTest {
 
     @MockBean
     private PlanificationOrchestrator planificationOrchestrator;
+
+    @MockBean
+    private SoutenanceReadOrchestrator soutenanceReadOrchestrator;
+
+    @MockBean
+    private SoutenanceRepository soutenanceRepository;
+
+    @MockBean
+    private ResultatRepository resultatRepository;
 
     @MockBean
     private ApplicationUserRepository userRepository;
@@ -71,7 +83,7 @@ class OwnershipAccessControlTest {
         soutenance.setId(10L);
         soutenance.setPresident(new Enseignant(4L, "Nom", "Prenom", "teacher@example.local", "Prof", "SI"));
         soutenance.setEtudiant(new Etudiant(7, "Nom", "Prenom", "student@example.local", "M1", "GL", "M2"));
-        when(soutenanceService.getOrThrow(10L)).thenReturn(soutenance);
+        when(soutenanceRepository.findById(10L)).thenReturn(Optional.of(soutenance));
         when(soutenanceService.getById(10L)).thenReturn(new SoutenanceDTO());
 
         mockMvc.perform(get("/api/soutenances/10")
@@ -84,7 +96,7 @@ class OwnershipAccessControlTest {
         Soutenance soutenance = new Soutenance();
         soutenance.setId(10L);
         soutenance.setPresident(new Enseignant(99L, "Nom", "Prenom", "other@example.local", "Prof", "SI"));
-        when(soutenanceService.getOrThrow(10L)).thenReturn(soutenance);
+        when(soutenanceRepository.findById(10L)).thenReturn(Optional.of(soutenance));
 
         mockMvc.perform(get("/api/soutenances/10")
                         .header(HttpHeaders.AUTHORIZATION, bearer(user("teacher", Role.ENSEIGNANT, 4L, null))))

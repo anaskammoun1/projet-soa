@@ -3,6 +3,7 @@ package com.soutenance.orchestrator;
 import com.soutenance.exception.BusinessException;
 import com.soutenance.features.enseignant.entity.Enseignant;
 import com.soutenance.features.enseignant.service.Interface.EnseignantService;
+import com.soutenance.features.resultat.service.ResultatService;
 import com.soutenance.features.jury.dto.JuryDTO;
 import com.soutenance.features.soutenance.dto.SoutenanceDTO;
 import com.soutenance.features.soutenance.entity.Soutenance;
@@ -28,6 +29,9 @@ class JuryOrchestratorTest {
 
     @Mock
     private SoutenanceService soutenanceService;
+
+    @Mock
+    private ResultatService resultatService;
 
     @InjectMocks
     private JuryOrchestrator orchestrator;

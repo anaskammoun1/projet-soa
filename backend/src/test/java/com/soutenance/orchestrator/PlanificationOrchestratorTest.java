@@ -5,6 +5,7 @@ import com.soutenance.features.enseignant.entity.Enseignant;
 import com.soutenance.features.enseignant.service.Interface.EnseignantService;
 import com.soutenance.features.etudiant.entity.Etudiant;
 import com.soutenance.features.etudiant.service.Interface.EtudiantService;
+import com.soutenance.features.resultat.service.ResultatService;
 import com.soutenance.features.salle.entity.Salle;
 import com.soutenance.features.salle.service.Interface.SalleService;
 import com.soutenance.features.soutenance.dto.SoutenanceDTO;
@@ -40,6 +41,9 @@ class PlanificationOrchestratorTest {
 
     @Mock
     private SoutenanceService soutenanceService;
+
+    @Mock
+    private ResultatService resultatService;
 
     @InjectMocks
     private PlanificationOrchestrator orchestrator;

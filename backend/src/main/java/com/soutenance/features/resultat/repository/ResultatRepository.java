@@ -19,6 +19,22 @@ public interface ResultatRepository extends JpaRepository<Resultat, Long> {
 
     boolean existsBySoutenanceId(Long soutenanceId);
 
+    void deleteBySoutenanceId(Long soutenanceId);
+
+    @Query("""
+        SELECT r
+        FROM Resultat r
+        WHERE r.publie = true
+          AND r.soutenanceId IN (
+            SELECT s.id
+            FROM Soutenance s
+            WHERE s.president.id = :enseignantId
+               OR s.rapporteur.id = :enseignantId
+               OR s.examinateur.id = :enseignantId
+        )
+        """)
+    List<Resultat> findAllAssignedToTeacher(Long enseignantId);
+
     @Query("SELECT COUNT(r) FROM Resultat r WHERE r.decisionFinale = 'ADMIS' AND r.publie = true")
     long countAdmis();
 

@@ -3,10 +3,12 @@ package com.soutenance.orchestrator;
 import com.soutenance.exception.BusinessException;
 import com.soutenance.features.enseignant.entity.Enseignant;
 import com.soutenance.features.enseignant.service.Interface.EnseignantService;
+import com.soutenance.features.resultat.service.ResultatService;
 import com.soutenance.features.jury.dto.JuryDTO;
 import com.soutenance.features.soutenance.dto.SoutenanceDTO;
 import com.soutenance.features.soutenance.entity.Soutenance;
 import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +18,9 @@ public class JuryOrchestrator {
 
     private final EnseignantService enseignantService;
     private final SoutenanceService soutenanceService;
+    private final ResultatService resultatService;
 
+    @Transactional
     public SoutenanceDTO affecterJury(JuryDTO dto) {
         Soutenance soutenance = createJury(
                 dto.getSoutenanceId(),
@@ -26,6 +30,7 @@ public class JuryOrchestrator {
         return toSoutenanceDTO(soutenance);
     }
 
+    @Transactional
     public Soutenance createJury(Long soutenanceId,
                                  Long presidentId,
                                  Long rapporteurId,
@@ -42,6 +47,7 @@ public class JuryOrchestrator {
         Enseignant examinateur = enseignantService.getOrThrow(examinateurId);
         Soutenance soutenance = soutenanceService.getOrThrow(soutenanceId);
 
+        clearChangedRoleNotes(soutenance, presidentId, rapporteurId, examinateurId);
         soutenance.setPresident(president);
         soutenance.setRapporteur(rapporteur);
         soutenance.setExaminateur(examinateur);
@@ -58,6 +64,7 @@ public class JuryOrchestrator {
                 soutenance.getExaminateur() != null ? soutenance.getExaminateur().getId() : null);
     }
 
+    @Transactional
     public void deleteJury(Long soutenanceId) {
         Soutenance soutenance = soutenanceService.getOrThrow(soutenanceId);
         soutenance.setPresident(null);
@@ -66,7 +73,30 @@ public class JuryOrchestrator {
         soutenance.setNotePresident(null);
         soutenance.setNoteRapporteur(null);
         soutenance.setNoteExaminateur(null);
+        resultatService.deleteBySoutenanceId(soutenanceId);
         soutenanceService.save(soutenance);
+    }
+
+    private void clearChangedRoleNotes(Soutenance soutenance,
+                                       Long presidentId,
+                                       Long rapporteurId,
+                                       Long examinateurId) {
+        boolean changed = false;
+        if (soutenance.getPresident() != null && !soutenance.getPresident().getId().equals(presidentId)) {
+            soutenance.setNotePresident(null);
+            changed = true;
+        }
+        if (soutenance.getRapporteur() != null && !soutenance.getRapporteur().getId().equals(rapporteurId)) {
+            soutenance.setNoteRapporteur(null);
+            changed = true;
+        }
+        if (soutenance.getExaminateur() != null && !soutenance.getExaminateur().getId().equals(examinateurId)) {
+            soutenance.setNoteExaminateur(null);
+            changed = true;
+        }
+        if (changed) {
+            resultatService.deleteBySoutenanceId(soutenance.getId());
+        }
     }
 
     private SoutenanceDTO toSoutenanceDTO(Soutenance s) {

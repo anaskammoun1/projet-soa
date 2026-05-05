@@ -5,11 +5,9 @@ import com.soutenance.features.resultat.entity.Resultat;
 import com.soutenance.features.resultat.entity.Resultat.Decision;
 import com.soutenance.features.resultat.entity.Resultat.Mention;
 import com.soutenance.features.resultat.repository.ResultatRepository;
-import com.soutenance.security.audit.AuditService;
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,7 +19,6 @@ import java.util.Optional;
 public class ResultatService {
 
     private final ResultatRepository resultatRepository;
-    private final AuditService auditService;
 
     public Resultat calculateResultat(
             Long soutenanceId,
@@ -29,10 +26,6 @@ public class ResultatService {
             Float notePresident,
             Float noteRapporteur,
             Float noteExaminateur) {
-
-        if (resultatRepository.existsBySoutenanceId(soutenanceId)) {
-            throw new BusinessException("Resultat deja calcule pour cette soutenance");
-        }
 
         if (notePresident == null || noteRapporteur == null || noteExaminateur == null) {
             throw new BusinessException("Toutes les notes du jury doivent etre saisies avant le calcul du resultat");
@@ -45,15 +38,24 @@ public class ResultatService {
         Mention mention = attributeMention(moyenne);
         Decision decision = determineDecision(moyenne);
 
-        Resultat resultat = Resultat.builder()
-                .etudiantId(etudiantId)
-                .soutenanceId(soutenanceId)
-                .moyenneFinale(moyenne)
-                .mention(mention)
-                .decisionFinale(decision)
-                .valide(false)
-                .publie(false)
-                .build();
+        Resultat resultat = resultatRepository.findBySoutenanceId(soutenanceId)
+                .map(existing -> {
+                    if (Boolean.TRUE.equals(existing.getValide()) || Boolean.TRUE.equals(existing.getPublie())) {
+                        throw new BusinessException("Impossible de recalculer un resultat valide ou publie");
+                    }
+                    return existing;
+                })
+                .orElseGet(() -> Resultat.builder()
+                        .etudiantId(etudiantId)
+                        .soutenanceId(soutenanceId)
+                        .valide(false)
+                        .publie(false)
+                        .build());
+
+        resultat.setEtudiantId(etudiantId);
+        resultat.setMoyenneFinale(moyenne);
+        resultat.setMention(mention);
+        resultat.setDecisionFinale(decision);
 
         return resultatRepository.save(resultat);
     }
@@ -79,6 +81,15 @@ public class ResultatService {
         return resultatRepository.findByPublieTrue();
     }
 
+    public List<Resultat> getAssignedToTeacher(Long enseignantId) {
+        return resultatRepository.findAllAssignedToTeacher(enseignantId);
+    }
+
+    @Transactional
+    public void deleteBySoutenanceId(Long soutenanceId) {
+        resultatRepository.deleteBySoutenanceId(soutenanceId);
+    }
+
     public Resultat validateResultat(Long id) {
         Resultat resultat = resultatRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("Resultat non trouve"));
@@ -96,14 +107,7 @@ public class ResultatService {
 
         resultat.setPublie(true);
         resultat.setPublishedAt(LocalDateTime.now());
-        Resultat published = resultatRepository.save(resultat);
-        auditService.log(
-                "RESULTAT_PUBLISHED",
-                currentUsername(),
-                null,
-                true,
-                "resultatId=" + published.getId() + ", soutenanceId=" + published.getSoutenanceId());
-        return published;
+        return resultatRepository.save(resultat);
     }
 
     public ResultatStatistics getStatistics() {
@@ -130,11 +134,6 @@ public class ResultatService {
 
     private Decision determineDecision(Double moyenne) {
         return moyenne >= 10 ? Decision.ADMIS : Decision.AJOURNE;
-    }
-
-    private String currentUsername() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null ? authentication.getName() : "system";
     }
 
     @Data

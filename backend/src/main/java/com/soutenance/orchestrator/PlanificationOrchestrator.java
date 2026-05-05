@@ -5,12 +5,14 @@ import com.soutenance.features.enseignant.entity.Enseignant;
 import com.soutenance.features.enseignant.service.Interface.EnseignantService;
 import com.soutenance.features.etudiant.entity.Etudiant;
 import com.soutenance.features.etudiant.service.Interface.EtudiantService;
+import com.soutenance.features.resultat.service.ResultatService;
 import com.soutenance.features.salle.entity.Salle;
 import com.soutenance.features.salle.service.Interface.SalleService;
 import com.soutenance.features.soutenance.dto.SoutenanceDTO;
 import com.soutenance.features.soutenance.entity.Soutenance;
 import com.soutenance.features.soutenance.entity.StatutSoutenance;
 import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +26,9 @@ public class PlanificationOrchestrator {
     private final EnseignantService enseignantService;
     private final SalleService salleService;
     private final SoutenanceService soutenanceService;
+    private final ResultatService resultatService;
 
+    @Transactional
     public Soutenance planifierSoutenance(SoutenanceDTO dto) {
         validateRequired(dto);
         Soutenance soutenance = new Soutenance();
@@ -36,9 +40,11 @@ public class PlanificationOrchestrator {
         return planifierSoutenance(soutenance, null);
     }
 
+    @Transactional
     public Soutenance modifierSoutenance(Long id, SoutenanceDTO dto) {
         Soutenance existing = soutenanceService.getOrThrow(id);
         Soutenance merged = merge(existing, dto);
+        clearChangedJuryNotes(existing, merged);
         validateRequired(toDtoShape(merged));
         return planifierSoutenance(merged, id);
     }
@@ -125,6 +131,31 @@ public class PlanificationOrchestrator {
         merged.setSalle(referenceSalle(salleId));
         merged.setEtudiant(referenceEtudiant(etudiantId));
         return merged;
+    }
+
+    private void clearChangedJuryNotes(Soutenance existing, Soutenance merged) {
+        boolean changed = false;
+        if (!sameId(existing.getPresident(), merged.getPresident())) {
+            merged.setNotePresident(null);
+            changed = true;
+        }
+        if (!sameId(existing.getRapporteur(), merged.getRapporteur())) {
+            merged.setNoteRapporteur(null);
+            changed = true;
+        }
+        if (!sameId(existing.getExaminateur(), merged.getExaminateur())) {
+            merged.setNoteExaminateur(null);
+            changed = true;
+        }
+        if (changed) {
+            resultatService.deleteBySoutenanceId(existing.getId());
+        }
+    }
+
+    private boolean sameId(Enseignant left, Enseignant right) {
+        Long leftId = idOf(left);
+        Long rightId = idOf(right);
+        return leftId == null ? rightId == null : leftId.equals(rightId);
     }
 
     private void applyDto(Soutenance soutenance, SoutenanceDTO dto) {

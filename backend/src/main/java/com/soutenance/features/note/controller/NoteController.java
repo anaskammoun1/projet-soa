@@ -22,13 +22,13 @@ public class NoteController {
     private final NotationOrchestrator notationOrchestrator;
 
     @PostMapping
-    @PreAuthorize("@ownershipSecurity.canEvaluate(#dto.evaluateurId)")
+    @PreAuthorize("@ownershipSecurity.canEvaluateNote(#dto.soutenanceId, #dto.roleJury)")
     public NoteDTO saisir(@RequestBody NoteDTO dto) {
         return notationOrchestrator.saisirNote(dto);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("@ownershipSecurity.canEvaluate(#dto.evaluateurId)")
+    @PreAuthorize("@ownershipSecurity.canEvaluateNote(#dto.soutenanceId != null ? #dto.soutenanceId : #id, #dto.roleJury)")
     public NoteDTO modifier(@PathVariable Long id, @RequestBody NoteDTO dto) {
         return notationOrchestrator.modifierNote(id, dto);
     }

@@ -22,4 +22,8 @@ public class AuthResponse {
     private String username;
 
     private Role role;
+
+    private Long enseignantId;
+
+    private Integer etudiantId;
 }

@@ -6,6 +6,9 @@ import com.soutenance.features.resultat.entity.Resultat;
 import com.soutenance.features.resultat.service.ResultatService;
 import com.soutenance.features.soutenance.entity.Soutenance;
 import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
+import com.soutenance.security.CurrentUserService;
+import com.soutenance.security.Role;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,31 +21,39 @@ public class NotationOrchestrator {
 
     private final SoutenanceService soutenanceService;
     private final ResultatService resultatService;
+    private final CurrentUserService currentUserService;
 
+    @Transactional
     public NoteDTO saisirNote(NoteDTO dto) {
         Long soutenanceId = dto.getSoutenanceId();
-        validateEvaluateurRole(soutenanceId, dto.getEvaluateurId(), dto.getRoleJury());
+        Long evaluateurId = effectiveEvaluateurId(dto.getEvaluateurId());
+        validateEvaluateurRole(soutenanceId, evaluateurId, dto.getRoleJury());
+        validateResultCanBeEdited(soutenanceId);
         Soutenance saved = noterSoutenance(
                 soutenanceId,
                 dto.getRoleJury(),
                 dto.getNoteRapport(),
                 dto.getNoteExpose(),
                 dto.getNoteQuestions());
-        return toNoteDTO(saved, dto.getRoleJury(), dto.getEvaluateurId());
+        return toNoteDTO(saved, dto.getRoleJury(), evaluateurId);
     }
 
+    @Transactional
     public NoteDTO modifierNote(Long id, NoteDTO dto) {
         Long soutenanceId = dto.getSoutenanceId() != null ? dto.getSoutenanceId() : id;
-        validateEvaluateurRole(soutenanceId, dto.getEvaluateurId(), dto.getRoleJury());
+        Long evaluateurId = effectiveEvaluateurId(dto.getEvaluateurId());
+        validateEvaluateurRole(soutenanceId, evaluateurId, dto.getRoleJury());
+        validateResultCanBeEdited(soutenanceId);
         Soutenance saved = noterSoutenance(
                 soutenanceId,
                 dto.getRoleJury(),
                 dto.getNoteRapport(),
                 dto.getNoteExpose(),
                 dto.getNoteQuestions());
-        return toNoteDTO(saved, dto.getRoleJury(), dto.getEvaluateurId());
+        return toNoteDTO(saved, dto.getRoleJury(), evaluateurId);
     }
 
+    @Transactional
     public Soutenance noterSoutenance(Long soutenanceId,
                                       String roleJury,
                                       double noteRapport,
@@ -78,10 +89,12 @@ public class NotationOrchestrator {
         return saved;
     }
 
+    @Transactional
     public Resultat calculerResultat(Long soutenanceId) {
         return calculerResultat(soutenanceService.getOrThrow(soutenanceId));
     }
 
+    @Transactional
     public Resultat calculerResultat(Long soutenanceId, Long etudiantId) {
         Soutenance soutenance = soutenanceService.getOrThrow(soutenanceId);
         if (soutenance.getEtudiant() == null || !soutenance.getEtudiant().getId().equals(etudiantId.intValue())) {
@@ -141,6 +154,25 @@ public class NotationOrchestrator {
                 soutenance.getNotePresident(),
                 soutenance.getNoteRapporteur(),
                 soutenance.getNoteExaminateur());
+    }
+
+    private void validateResultCanBeEdited(Long soutenanceId) {
+        resultatService.getResultatBySoutenanceId(soutenanceId).ifPresent(resultat -> {
+            if (Boolean.TRUE.equals(resultat.getValide()) || Boolean.TRUE.equals(resultat.getPublie())) {
+                throw new BusinessException("Impossible de modifier les notes apres validation ou publication du resultat");
+            }
+        });
+    }
+
+    private Long effectiveEvaluateurId(Long requestedEvaluateurId) {
+        var user = currentUserService.getCurrentUser();
+        if (user.getRole() == Role.ADMIN) {
+            return requestedEvaluateurId;
+        }
+        if (user.getRole() == Role.ENSEIGNANT && user.getEnseignantId() != null) {
+            return user.getEnseignantId();
+        }
+        throw new BusinessException("Seuls les membres du jury peuvent saisir une note");
     }
 
     private void validateEvaluateurRole(Long soutenanceId, Long evaluateurId, String roleJury) {

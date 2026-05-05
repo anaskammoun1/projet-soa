@@ -1,6 +1,7 @@
 package com.soutenance.security.auth;
 
 import com.soutenance.security.jwt.JwtService;
+import com.soutenance.security.CurrentUserService;
 import com.soutenance.security.audit.AuditService;
 import com.soutenance.security.refresh.IssuedRefreshToken;
 import com.soutenance.security.refresh.RefreshTokenService;
@@ -20,6 +21,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final AuditService auditService;
+    private final CurrentUserService currentUserService;
 
     public AuthResponse login(LoginRequest request) {
         ApplicationUser user = userRepository.findByUsername(request.getUsername()).orElse(null);
@@ -46,16 +48,27 @@ public class AuthService {
         return response;
     }
 
+    public AuthResponse currentSession() {
+        ApplicationUser user = currentUserService.getCurrentUser();
+        return baseResponse(user).build();
+    }
+
     private AuthResponse issueTokens(ApplicationUser user) {
         String token = jwtService.generateToken(user.getUsername(), user.getRole());
         IssuedRefreshToken refreshToken = refreshTokenService.issueFor(user);
-        return AuthResponse.builder()
+        return baseResponse(user)
                 .accessToken(token)
                 .refreshToken(refreshToken.rawToken())
                 .expiresInMs(jwtService.getExpirationMs())
                 .refreshExpiresInMs(refreshToken.expiresInMs())
+                .build();
+    }
+
+    private AuthResponse.AuthResponseBuilder baseResponse(ApplicationUser user) {
+        return AuthResponse.builder()
                 .username(user.getUsername())
                 .role(user.getRole())
-                .build();
+                .enseignantId(user.getEnseignantId())
+                .etudiantId(user.getEtudiantId());
     }
 }

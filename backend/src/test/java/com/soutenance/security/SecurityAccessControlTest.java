@@ -52,12 +52,12 @@ class SecurityAccessControlTest {
     }
 
     @Test
-    void enseignantCanReadSalles() throws Exception {
+    void enseignantCannotReadSalles() throws Exception {
         when(salleService.getAll()).thenReturn(List.of(new SalleDTO(1L, "A1", 20, "Bloc A", true)));
 
         mockMvc.perform(get("/api/salles")
                         .header(HttpHeaders.AUTHORIZATION, bearer("teacher", Role.ENSEIGNANT)))
-                .andExpect(status().isOk());
+                .andExpect(status().isForbidden());
     }
 
     @Test

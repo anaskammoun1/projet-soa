@@ -5,6 +5,7 @@ import com.soutenance.features.soutenance.entity.Soutenance;
 import com.soutenance.features.soutenance.entity.StatutSoutenance;
 import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
 import com.soutenance.orchestrator.PlanificationOrchestrator;
+import com.soutenance.orchestrator.SoutenanceReadOrchestrator;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +19,18 @@ public class SoutenanceController {
 
     private final SoutenanceService service;
     private final PlanificationOrchestrator planificationOrchestrator;
+    private final SoutenanceReadOrchestrator soutenanceReadOrchestrator;
 
-    public SoutenanceController(SoutenanceService service, PlanificationOrchestrator planificationOrchestrator) {
+    public SoutenanceController(SoutenanceService service,
+                                PlanificationOrchestrator planificationOrchestrator,
+                                SoutenanceReadOrchestrator soutenanceReadOrchestrator) {
         this.service = service;
         this.planificationOrchestrator = planificationOrchestrator;
+        this.soutenanceReadOrchestrator = soutenanceReadOrchestrator;
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public SoutenanceDTO create(@RequestBody SoutenanceDTO dto) {
         Soutenance soutenance = planificationOrchestrator.planifierSoutenance(dto);
         return service.getById(soutenance.getId());
@@ -32,8 +38,7 @@ public class SoutenanceController {
 
     @GetMapping
     public List<SoutenanceDTO> getAll() {
-
-        return service.getAll();
+        return soutenanceReadOrchestrator.getVisibleSoutenances();
     }
 
     @GetMapping("/{id}")
@@ -44,6 +49,7 @@ public class SoutenanceController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public SoutenanceDTO update(
             @PathVariable Long id,
             @RequestBody SoutenanceDTO dto) {
@@ -52,6 +58,7 @@ public class SoutenanceController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(@PathVariable Long id) {
 
         service.delete(id);
@@ -64,6 +71,7 @@ public class SoutenanceController {
     }
 
     @PatchMapping("/{id}/statut")
+    @PreAuthorize("hasRole('ADMIN')")
     public SoutenanceDTO updateStatut(@PathVariable Long id, @RequestParam StatutSoutenance statut) {
         return service.updateStatut(id, statut);
     }
