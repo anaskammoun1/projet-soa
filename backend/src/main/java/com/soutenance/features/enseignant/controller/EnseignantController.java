@@ -3,6 +3,8 @@ package com.soutenance.features.enseignant.controller;
 import com.soutenance.features.enseignant.dto.EnseignantDTO;
 import com.soutenance.features.enseignant.service.Implementation.EnseignantServiceImpl;
 import com.soutenance.security.CurrentUserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +14,8 @@ import java.util.List;
 @RequestMapping({"/api/enseignants", "/api/encadrants"})
 @CrossOrigin("*")
 public class EnseignantController {
+
+    private static final Logger logger = LoggerFactory.getLogger(EnseignantController.class);
 
     private final EnseignantServiceImpl service;
     private final CurrentUserService currentUserService;
@@ -31,6 +35,23 @@ public class EnseignantController {
     @PreAuthorize("hasRole('ADMIN')")
     public List<EnseignantDTO> getAll() {
         return service.getAll();
+    }
+
+    @GetMapping("/jury/available")
+    public List<EnseignantDTO> getAvailableForJury(@RequestParam(required = false) Integer etudiantId) {
+        logger.info("getAvailableForJury called with etudiantId: {}", etudiantId);
+        try {
+            if (etudiantId == null) {
+                logger.warn("etudiantId is null, returning all enseignants");
+                return service.getAll();
+            }
+            List<EnseignantDTO> result = service.getAvailableForJury(etudiantId);
+            logger.info("Returning {} enseignants for etudiantId: {}", result.size(), etudiantId);
+            return result;
+        } catch (Exception e) {
+            logger.error("Error in getAvailableForJury with etudiantId: {}", etudiantId, e);
+            throw e;
+        }
     }
 
     @GetMapping("/me")

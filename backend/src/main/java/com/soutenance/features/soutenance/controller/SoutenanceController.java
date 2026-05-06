@@ -10,7 +10,10 @@ import com.soutenance.orchestrator.SoutenanceReadOrchestrator;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/soutenances")
@@ -46,6 +49,42 @@ public class SoutenanceController {
     public SoutenanceDTO getById(@PathVariable Long id) {
 
         return service.getById(id);
+    }
+
+    @GetMapping("/{id}/debug")
+    @PreAuthorize("@ownershipSecurity.canAccessSoutenance(#id)")
+    public Map<String, Object> debugStatus(@PathVariable Long id) {
+        SoutenanceDTO dto = service.getById(id);
+        LocalDateTime now = LocalDateTime.now();
+        
+        Map<String, Object> debug = new LinkedHashMap<>();
+        debug.put("id", dto.getId());
+        debug.put("titre", dto.getTitre());
+        debug.put("date", dto.getDate());
+        debug.put("duree", dto.getDuree());
+        debug.put("currentStatut", dto.getStatut());
+        debug.put("serverNow", now);
+        
+        if (dto.getDate() != null) {
+            LocalDateTime debut = dto.getDate();
+            LocalDateTime fin = debut.plusMinutes(dto.getDuree());
+            debug.put("startTime", debut);
+            debug.put("endTime", fin);
+            debug.put("isStarted", now.isAfter(debut) || now.isEqual(debut));
+            debug.put("isFinished", now.isAfter(fin) || now.isEqual(fin));
+            
+            String computedStatus = "ERROR";
+            if (now.isBefore(debut)) {
+                computedStatus = "PLANIFIEE (future)";
+            } else if (now.isBefore(fin)) {
+                computedStatus = "EN_COURS (in progress)";
+            } else {
+                computedStatus = "TERMINEE (past)";
+            }
+            debug.put("computedStatus", computedStatus);
+        }
+        
+        return debug;
     }
 
     @PutMapping("/{id}")

@@ -11,6 +11,8 @@ public interface EnseignantService {
 
     List<EnseignantDTO> getAll();
 
+    List<EnseignantDTO> getAvailableForJury(Integer etudiantId);
+
     EnseignantDTO getById(Long id);
 
     EnseignantDTO update(Long id, EnseignantDTO dto);

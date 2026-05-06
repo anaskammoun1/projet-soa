@@ -4,6 +4,7 @@ import com.soutenance.exception.BusinessException;
 import com.soutenance.features.enseignant.entity.Enseignant;
 import com.soutenance.features.note.dto.NoteDTO;
 import com.soutenance.features.resultat.entity.Resultat;
+import com.soutenance.features.soutenance.entity.StatutSoutenance;
 import com.soutenance.features.resultat.service.ResultatService;
 import com.soutenance.features.soutenance.entity.Soutenance;
 import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
@@ -28,6 +29,7 @@ public class NotationOrchestrator {
     public NoteDTO saisirNote(NoteDTO dto) {
         Long soutenanceId = dto.getSoutenanceId();
         Long evaluateurId = effectiveEvaluateurId(dto.getEvaluateurId());
+        validateTeacherCanGradeOnlyWhenTerminee(soutenanceId);
         validateEvaluateurRole(soutenanceId, evaluateurId, dto.getRoleJury());
         validateResultCanBeEdited(soutenanceId);
         Soutenance saved = noterSoutenance(
@@ -43,6 +45,7 @@ public class NotationOrchestrator {
     public NoteDTO modifierNote(Long id, NoteDTO dto) {
         Long soutenanceId = dto.getSoutenanceId() != null ? dto.getSoutenanceId() : id;
         Long evaluateurId = effectiveEvaluateurId(dto.getEvaluateurId());
+        validateTeacherCanGradeOnlyWhenTerminee(soutenanceId);
         validateEvaluateurRole(soutenanceId, evaluateurId, dto.getRoleJury());
         validateResultCanBeEdited(soutenanceId);
         Soutenance saved = noterSoutenance(
@@ -181,6 +184,18 @@ public class NotationOrchestrator {
                 throw new BusinessException("Impossible de modifier les notes apres validation ou publication du resultat");
             }
         });
+    }
+
+    private void validateTeacherCanGradeOnlyWhenTerminee(Long soutenanceId) {
+        var user = currentUserService.getCurrentUser();
+        if (user.getRole() != Role.ENSEIGNANT) {
+            return;
+        }
+
+        Soutenance soutenance = soutenanceService.getOrThrow(soutenanceId);
+        if (soutenance.getStatut() != StatutSoutenance.TERMINEE) {
+            throw new BusinessException("Un enseignant peut saisir une note uniquement pour une soutenance terminee");
+        }
     }
 
     private Long effectiveEvaluateurId(Long requestedEvaluateurId) {

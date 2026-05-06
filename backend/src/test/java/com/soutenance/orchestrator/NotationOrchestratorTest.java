@@ -5,6 +5,7 @@ import com.soutenance.features.enseignant.entity.Enseignant;
 import com.soutenance.features.etudiant.entity.Etudiant;
 import com.soutenance.features.note.dto.NoteDTO;
 import com.soutenance.features.resultat.entity.Resultat;
+import com.soutenance.features.soutenance.entity.StatutSoutenance;
 import com.soutenance.features.resultat.service.ResultatService;
 import com.soutenance.features.soutenance.entity.Soutenance;
 import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
@@ -89,6 +90,42 @@ class NotationOrchestratorTest {
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("n'est pas membre");
     }
+
+        @Test
+        void saisirNoteForTeacherRejectedWhenSoutenanceNotTerminee() {
+        Soutenance soutenance = soutenance();
+        soutenance.setStatut(StatutSoutenance.PLANIFIEE);
+        when(soutenanceService.getOrThrow(10L)).thenReturn(soutenance);
+        when(currentUserService.getCurrentUser()).thenReturn(ApplicationUser.builder()
+            .username("teacher")
+            .email("teacher@example.local")
+            .role(Role.ENSEIGNANT)
+            .enseignantId(1L)
+            .build());
+
+        assertThatThrownBy(() -> orchestrator.saisirNote(new NoteDTO(1L, 10L, null, "PRESIDENT", 15.0, 12.0, 18.0, null)))
+            .isInstanceOf(BusinessException.class)
+            .hasMessageContaining("uniquement pour une soutenance terminee");
+        }
+
+        @Test
+        void saisirNoteForTeacherAllowedWhenSoutenanceTerminee() {
+        Soutenance soutenance = soutenance();
+        soutenance.setStatut(StatutSoutenance.TERMINEE);
+        when(soutenanceService.getOrThrow(10L)).thenReturn(soutenance);
+        when(soutenanceService.save(any(Soutenance.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(currentUserService.getCurrentUser()).thenReturn(ApplicationUser.builder()
+            .username("teacher")
+            .email("teacher@example.local")
+            .role(Role.ENSEIGNANT)
+            .enseignantId(1L)
+            .build());
+
+        NoteDTO response = orchestrator.saisirNote(new NoteDTO(1L, 10L, null, "PRESIDENT", 15.0, 12.0, 18.0, null));
+
+        assertThat(response.getMoyenneEvaluateur()).isEqualTo(15.0);
+        verify(soutenanceService).save(soutenance);
+        }
 
     private Soutenance soutenance() {
         Soutenance soutenance = new Soutenance();

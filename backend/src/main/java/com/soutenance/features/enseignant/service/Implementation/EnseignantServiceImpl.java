@@ -80,6 +80,14 @@ public class EnseignantServiceImpl implements EnseignantService {
     }
 
     @Override
+    public List<EnseignantDTO> getAvailableForJury(Integer etudiantId) {
+        return repository.findEnseignantsExcludingEncadrantOf(etudiantId)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public EnseignantDTO getById(Long id) {
         return toDTO(getOrThrow(id));
     }

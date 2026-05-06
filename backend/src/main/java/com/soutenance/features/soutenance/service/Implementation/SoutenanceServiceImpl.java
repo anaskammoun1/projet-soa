@@ -6,8 +6,10 @@ import com.soutenance.features.soutenance.entity.Soutenance;
 import com.soutenance.features.soutenance.entity.StatutSoutenance;
 import com.soutenance.features.soutenance.repository.SoutenanceRepository;
 import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,10 +17,22 @@ import java.util.stream.Collectors;
 @Service
 public class SoutenanceServiceImpl implements SoutenanceService {
 
-    private final SoutenanceRepository repository;
+    @Autowired
+    private SoutenanceRepository repository;
+    private Clock clock;
 
+    public SoutenanceServiceImpl() {
+        this.clock = Clock.systemDefaultZone();
+    }
+
+    @Autowired
     public SoutenanceServiceImpl(SoutenanceRepository repository) {
+        this(repository, Clock.systemDefaultZone());
+    }
+
+    SoutenanceServiceImpl(SoutenanceRepository repository, Clock clock) {
         this.repository = repository;
+        this.clock = clock;
     }
 
     private SoutenanceDTO toDTO(Soutenance s) {
@@ -71,6 +85,7 @@ public class SoutenanceServiceImpl implements SoutenanceService {
     public List<SoutenanceDTO> getAll() {
         return repository.findAll()
                 .stream()
+                .map(this::syncAutomaticStatut)
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
@@ -79,6 +94,7 @@ public class SoutenanceServiceImpl implements SoutenanceService {
     public List<SoutenanceDTO> getAssignedToTeacher(Long enseignantId) {
         return repository.findAllAssignedToTeacher(enseignantId)
                 .stream()
+                .map(this::syncAutomaticStatut)
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
@@ -124,6 +140,7 @@ public class SoutenanceServiceImpl implements SoutenanceService {
     public List<SoutenanceDTO> getByEtudiantId(Integer etudiantId) {
         return repository.findAllByEtudiant_Id(etudiantId)
                 .stream()
+                .map(this::syncAutomaticStatut)
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
@@ -164,12 +181,42 @@ public class SoutenanceServiceImpl implements SoutenanceService {
 
     @Override
     public Soutenance getOrThrow(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Soutenance non trouvee avec id = " + id));
+        Soutenance soutenance = repository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Soutenance non trouvee avec id = " + id));
+        return syncAutomaticStatut(soutenance);
     }
 
     @Override
     public Soutenance save(Soutenance s) {
         return repository.save(s);
+    }
+
+    private Soutenance syncAutomaticStatut(Soutenance soutenance) {
+        StatutSoutenance computed = computeAutomaticStatut(soutenance, LocalDateTime.now(clock));
+        if (computed != soutenance.getStatut()) {
+            soutenance.setStatut(computed);
+            return repository.save(soutenance);
+        }
+        return soutenance;
+    }
+
+    private StatutSoutenance computeAutomaticStatut(Soutenance soutenance, LocalDateTime now) {
+        if (soutenance.getStatut() == StatutSoutenance.ANNULEE) {
+            return StatutSoutenance.ANNULEE;
+        }
+
+        if (soutenance.getDate() == null || soutenance.getDuree() <= 0) {
+            return soutenance.getStatut() != null ? soutenance.getStatut() : StatutSoutenance.PLANIFIEE;
+        }
+
+        LocalDateTime debut = soutenance.getDate();
+        LocalDateTime fin = debut.plusMinutes(soutenance.getDuree());
+        if (now.isBefore(debut)) {
+            return StatutSoutenance.PLANIFIEE;
+        }
+        if (now.isBefore(fin)) {
+            return StatutSoutenance.EN_COURS;
+        }
+        return StatutSoutenance.TERMINEE;
     }
 }
