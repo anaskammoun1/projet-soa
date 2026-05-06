@@ -26,10 +26,18 @@ public class Etudiant {
 
     private String niveau;
 
+    @Column(name = "encadrant_id")
+    private Long encadrantId;
+
     public Etudiant() {}
 
     public Etudiant(Integer id, String nom, String prenom, String email,
                     String matricule, String filiere, String niveau) {
+        this(id, nom, prenom, email, matricule, filiere, niveau, null);
+    }
+
+    public Etudiant(Integer id, String nom, String prenom, String email,
+                    String matricule, String filiere, String niveau, Long encadrantId) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
@@ -37,6 +45,7 @@ public class Etudiant {
         this.matricule = matricule;
         this.filiere = filiere;
         this.niveau = niveau;
+        this.encadrantId = encadrantId;
     }
 
 
@@ -90,5 +99,13 @@ public class Etudiant {
 
     public void setNiveau(String niveau) {
         this.niveau = niveau;
+    }
+
+    public Long getEncadrantId() {
+        return encadrantId;
+    }
+
+    public void setEncadrantId(Long encadrantId) {
+        this.encadrantId = encadrantId;
     }
 }

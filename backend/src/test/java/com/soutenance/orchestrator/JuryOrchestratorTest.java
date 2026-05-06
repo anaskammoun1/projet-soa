@@ -7,6 +7,7 @@ import com.soutenance.features.resultat.service.ResultatService;
 import com.soutenance.features.jury.dto.JuryDTO;
 import com.soutenance.features.soutenance.dto.SoutenanceDTO;
 import com.soutenance.features.soutenance.entity.Soutenance;
+import com.soutenance.features.soutenance.entity.StatutSoutenance;
 import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,6 +59,22 @@ class JuryOrchestratorTest {
     void affecterJuryRejectsDuplicateTeachers() {
         assertThatThrownBy(() -> orchestrator.affecterJury(new JuryDTO(10L, 1L, 1L, 3L)))
                 .isInstanceOf(BusinessException.class);
+        verify(soutenanceService, never()).save(any(Soutenance.class));
+    }
+
+    @Test
+    void affecterJuryRejectsFinishedSoutenance() {
+        Soutenance soutenance = new Soutenance();
+        soutenance.setId(10L);
+        soutenance.setStatut(StatutSoutenance.TERMINEE);
+        when(enseignantService.getOrThrow(1L)).thenReturn(enseignant(1L));
+        when(enseignantService.getOrThrow(2L)).thenReturn(enseignant(2L));
+        when(enseignantService.getOrThrow(3L)).thenReturn(enseignant(3L));
+        when(soutenanceService.getOrThrow(10L)).thenReturn(soutenance);
+
+        assertThatThrownBy(() -> orchestrator.affecterJury(new JuryDTO(10L, 1L, 2L, 3L)))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("terminee");
         verify(soutenanceService, never()).save(any(Soutenance.class));
     }
 

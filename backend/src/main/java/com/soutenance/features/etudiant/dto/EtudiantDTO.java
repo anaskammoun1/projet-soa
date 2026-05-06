@@ -1,5 +1,7 @@
 package com.soutenance.features.etudiant.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class EtudiantDTO {
 
     private Integer id;
@@ -9,11 +11,20 @@ public class EtudiantDTO {
     private String matricule;
     private String filiere;
     private String niveau;
+    private Long encadrantId;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
 
     public EtudiantDTO() {}
 
     public EtudiantDTO(Integer id, String nom, String prenom, String email,
                        String matricule, String filiere, String niveau) {
+        this(id, nom, prenom, email, matricule, filiere, niveau, null);
+    }
+
+    public EtudiantDTO(Integer id, String nom, String prenom, String email,
+                       String matricule, String filiere, String niveau, Long encadrantId) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
@@ -21,6 +32,7 @@ public class EtudiantDTO {
         this.matricule = matricule;
         this.filiere = filiere;
         this.niveau = niveau;
+        this.encadrantId = encadrantId;
     }
 
     public Integer getId() { return id; }
@@ -43,4 +55,10 @@ public class EtudiantDTO {
 
     public String getNiveau() { return niveau; }
     public void setNiveau(String niveau) { this.niveau = niveau; }
+
+    public Long getEncadrantId() { return encadrantId; }
+    public void setEncadrantId(Long encadrantId) { this.encadrantId = encadrantId; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 }

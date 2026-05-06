@@ -7,6 +7,7 @@ import com.soutenance.features.resultat.service.ResultatService;
 import com.soutenance.features.jury.dto.JuryDTO;
 import com.soutenance.features.soutenance.dto.SoutenanceDTO;
 import com.soutenance.features.soutenance.entity.Soutenance;
+import com.soutenance.features.soutenance.entity.StatutSoutenance;
 import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,7 @@ public class JuryOrchestrator {
         Enseignant rapporteur = enseignantService.getOrThrow(rapporteurId);
         Enseignant examinateur = enseignantService.getOrThrow(examinateurId);
         Soutenance soutenance = soutenanceService.getOrThrow(soutenanceId);
+        ensureJuryCanChange(soutenance);
 
         clearChangedRoleNotes(soutenance, presidentId, rapporteurId, examinateurId);
         soutenance.setPresident(president);
@@ -67,6 +69,7 @@ public class JuryOrchestrator {
     @Transactional
     public void deleteJury(Long soutenanceId) {
         Soutenance soutenance = soutenanceService.getOrThrow(soutenanceId);
+        ensureJuryCanChange(soutenance);
         soutenance.setPresident(null);
         soutenance.setRapporteur(null);
         soutenance.setExaminateur(null);
@@ -75,6 +78,12 @@ public class JuryOrchestrator {
         soutenance.setNoteExaminateur(null);
         resultatService.deleteBySoutenanceId(soutenanceId);
         soutenanceService.save(soutenance);
+    }
+
+    private void ensureJuryCanChange(Soutenance soutenance) {
+        if (soutenance.getStatut() == StatutSoutenance.TERMINEE) {
+            throw new BusinessException("Le jury d'une soutenance terminee ne peut pas etre modifie");
+        }
     }
 
     private void clearChangedRoleNotes(Soutenance soutenance,

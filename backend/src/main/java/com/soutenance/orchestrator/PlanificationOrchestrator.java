@@ -43,10 +43,29 @@ public class PlanificationOrchestrator {
     @Transactional
     public Soutenance modifierSoutenance(Long id, SoutenanceDTO dto) {
         Soutenance existing = soutenanceService.getOrThrow(id);
+        ensureFinishedSoutenanceIsNotReplanned(existing, dto);
         Soutenance merged = merge(existing, dto);
         clearChangedJuryNotes(existing, merged);
         validateRequired(toDtoShape(merged));
         return planifierSoutenance(merged, id);
+    }
+
+    private void ensureFinishedSoutenanceIsNotReplanned(Soutenance existing, SoutenanceDTO dto) {
+        if (existing.getStatut() != StatutSoutenance.TERMINEE) {
+            return;
+        }
+
+        boolean changesPlanning = (dto.getDate() != null && !dto.getDate().equals(existing.getDate()))
+                || (dto.getDuree() > 0 && dto.getDuree() != existing.getDuree())
+                || (dto.getPresidentId() != null && !dto.getPresidentId().equals(idOf(existing.getPresident())))
+                || (dto.getRapporteurId() != null && !dto.getRapporteurId().equals(idOf(existing.getRapporteur())))
+                || (dto.getExaminateurId() != null && !dto.getExaminateurId().equals(idOf(existing.getExaminateur())))
+                || (dto.getSalleId() != null && (existing.getSalle() == null || !dto.getSalleId().equals(existing.getSalle().getId())))
+                || (dto.getEtudiantId() != null && (existing.getEtudiant() == null || !dto.getEtudiantId().equals(existing.getEtudiant().getId())));
+
+        if (changesPlanning) {
+            throw new BusinessException("Une soutenance terminee ne peut plus etre replanifiee");
+        }
     }
 
     private Soutenance planifierSoutenance(Soutenance soutenance, Long excludeSoutenanceId) {
