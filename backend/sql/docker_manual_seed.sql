@@ -1,12 +1,10 @@
 SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE refresh_tokens;
-TRUNCATE TABLE resultats;
-TRUNCATE TABLE soutenances;
-TRUNCATE TABLE users;
-TRUNCATE TABLE etudiants;
-TRUNCATE TABLE enseignants;
-TRUNCATE TABLE salles;
-TRUNCATE TABLE audit_logs;
+DELETE FROM resultats;
+DELETE FROM soutenances;
+DELETE FROM users;
+DELETE FROM etudiants;
+DELETE FROM enseignants;
+DELETE FROM salles;
 SET FOREIGN_KEY_CHECKS = 1;
 
 INSERT INTO enseignants (id, nom, prenom, email, grade, specialite) VALUES
