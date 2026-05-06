@@ -116,8 +116,8 @@ public class OwnershipSecurity {
 
     private boolean canAccessSoutenanceEntity(ApplicationUser user, Soutenance soutenance) {
         if (user.getRole() == Role.ETUDIANT) {
-            return soutenance.getEtudiant() != null
-                    && soutenance.getEtudiant().getId().equals(user.getEtudiantId());
+            return soutenance.getEtudiantId() != null
+                    && soutenance.getEtudiantId().equals(user.getEtudiantId());
         }
 
         return user.getRole() == Role.ENSEIGNANT

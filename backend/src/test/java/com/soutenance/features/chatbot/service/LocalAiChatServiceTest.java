@@ -19,10 +19,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class LocalAiChatServiceTest {
 
+    private final ResultatService resultatService = mock(ResultatService.class);
+    private final ChatbotKnowledgeService chatbotKnowledgeService = mock(ChatbotKnowledgeService.class);
+
     private final LocalAiChatService service = new LocalAiChatService(
             new ObjectMapper(),
-            mock(ResultatService.class),
-            mock(ChatbotKnowledgeService.class));
+            resultatService,
+            chatbotKnowledgeService);
 
     @Test
     void planningQuestionReturnsUiWorkflowWithoutFakeApiSteps() {

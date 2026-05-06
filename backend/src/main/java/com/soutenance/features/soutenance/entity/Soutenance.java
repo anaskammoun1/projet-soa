@@ -46,6 +46,9 @@ public class Soutenance {
     @JoinColumn(name = "salle_id")
     private Salle salle;
 
+    @Column(name = "etudiant_id", insertable = false, updatable = false)
+    private Integer etudiantId;
+
     @OneToOne
     @JoinColumn(name = "etudiant_id")
     private Etudiant etudiant;
