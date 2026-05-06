@@ -1,6 +1,7 @@
 package com.soutenance.orchestrator;
 
 import com.soutenance.exception.BusinessException;
+import com.soutenance.features.enseignant.entity.Enseignant;
 import com.soutenance.features.note.dto.NoteDTO;
 import com.soutenance.features.resultat.entity.Resultat;
 import com.soutenance.features.resultat.service.ResultatService;
@@ -131,7 +132,8 @@ public class NotationOrchestrator {
                     valueOrAverage(soutenance.getNotePresidentExpose(), soutenance.getNotePresident()),
                     valueOrAverage(soutenance.getNotePresidentRapport(), soutenance.getNotePresident()),
                     valueOrAverage(soutenance.getNotePresidentQuestions(), soutenance.getNotePresident()),
-                    soutenance.getNotePresident().doubleValue()));
+                    soutenance.getNotePresident().doubleValue(),
+                    enseignantLabel(soutenance.getPresident())));
         }
 
         if (soutenance.getNoteRapporteur() != null) {
@@ -143,7 +145,8 @@ public class NotationOrchestrator {
                     valueOrAverage(soutenance.getNoteRapporteurExpose(), soutenance.getNoteRapporteur()),
                     valueOrAverage(soutenance.getNoteRapporteurRapport(), soutenance.getNoteRapporteur()),
                     valueOrAverage(soutenance.getNoteRapporteurQuestions(), soutenance.getNoteRapporteur()),
-                    soutenance.getNoteRapporteur().doubleValue()));
+                    soutenance.getNoteRapporteur().doubleValue(),
+                    enseignantLabel(soutenance.getRapporteur())));
         }
 
         if (soutenance.getNoteExaminateur() != null) {
@@ -155,7 +158,8 @@ public class NotationOrchestrator {
                     valueOrAverage(soutenance.getNoteExaminateurExpose(), soutenance.getNoteExaminateur()),
                     valueOrAverage(soutenance.getNoteExaminateurRapport(), soutenance.getNoteExaminateur()),
                     valueOrAverage(soutenance.getNoteExaminateurQuestions(), soutenance.getNoteExaminateur()),
-                    soutenance.getNoteExaminateur().doubleValue()));
+                    soutenance.getNoteExaminateur().doubleValue(),
+                    enseignantLabel(soutenance.getExaminateur())));
         }
 
         return notes;
@@ -247,7 +251,24 @@ public class NotationOrchestrator {
                 expose,
                 rapport,
                 questions,
-                moyenne);
+                moyenne,
+                enseignantLabel(enseignantForRole(soutenance, roleJury)));
+    }
+
+    private Enseignant enseignantForRole(Soutenance soutenance, String roleJury) {
+        return switch (roleJury.toUpperCase()) {
+            case "PRESIDENT" -> soutenance.getPresident();
+            case "RAPPORTEUR" -> soutenance.getRapporteur();
+            case "EXAMINATEUR" -> soutenance.getExaminateur();
+            default -> null;
+        };
+    }
+
+    private String enseignantLabel(Enseignant enseignant) {
+        if (enseignant == null) {
+            return null;
+        }
+        return (enseignant.getPrenom() + " " + enseignant.getNom()).trim();
     }
 
     private Double valueOrAverage(Double note, Float average) {

@@ -39,4 +39,43 @@ public class SoutenanceDTO {
 
     private Float noteExaminateur;
 
+    private String presidentNom;
+
+    private String rapporteurNom;
+
+    private String examinateurNom;
+
+    private String salleNom;
+
+    private String etudiantNom;
+
+    private String etudiantPrenom;
+
+    public SoutenanceDTO(Long id,
+                         String titre,
+                         LocalDateTime date,
+                         int duree,
+                         StatutSoutenance statut,
+                         Long presidentId,
+                         Long rapporteurId,
+                         Long examinateurId,
+                         Long salleId,
+                         Integer etudiantId,
+                         Float notePresident,
+                         Float noteRapporteur,
+                         Float noteExaminateur) {
+        this.id = id;
+        this.titre = titre;
+        this.date = date;
+        this.duree = duree;
+        this.statut = statut;
+        this.presidentId = presidentId;
+        this.rapporteurId = rapporteurId;
+        this.examinateurId = examinateurId;
+        this.salleId = salleId;
+        this.etudiantId = etudiantId;
+        this.notePresident = notePresident;
+        this.noteRapporteur = noteRapporteur;
+        this.noteExaminateur = noteExaminateur;
+    }
 }

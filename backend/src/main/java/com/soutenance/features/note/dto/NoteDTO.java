@@ -17,4 +17,23 @@ public class NoteDTO {
     private Double noteRapport;
     private Double noteQuestions;
     private Double moyenneEvaluateur;
+    private String evaluateurNom;
+
+    public NoteDTO(Long id,
+                   Long soutenanceId,
+                   Long evaluateurId,
+                   String roleJury,
+                   Double noteExpose,
+                   Double noteRapport,
+                   Double noteQuestions,
+                   Double moyenneEvaluateur) {
+        this.id = id;
+        this.soutenanceId = soutenanceId;
+        this.evaluateurId = evaluateurId;
+        this.roleJury = roleJury;
+        this.noteExpose = noteExpose;
+        this.noteRapport = noteRapport;
+        this.noteQuestions = noteQuestions;
+        this.moyenneEvaluateur = moyenneEvaluateur;
+    }
 }

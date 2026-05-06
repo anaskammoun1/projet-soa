@@ -109,7 +109,7 @@ public class JuryOrchestrator {
     }
 
     private SoutenanceDTO toSoutenanceDTO(Soutenance s) {
-        return new SoutenanceDTO(
+        SoutenanceDTO dto = new SoutenanceDTO(
                 s.getId(),
                 s.getTitre(),
                 s.getDate(),
@@ -123,5 +123,16 @@ public class JuryOrchestrator {
                 s.getNotePresident(),
                 s.getNoteRapporteur(),
                 s.getNoteExaminateur());
+        dto.setPresidentNom(s.getPresident() != null ? personLabel(s.getPresident().getPrenom(), s.getPresident().getNom()) : null);
+        dto.setRapporteurNom(s.getRapporteur() != null ? personLabel(s.getRapporteur().getPrenom(), s.getRapporteur().getNom()) : null);
+        dto.setExaminateurNom(s.getExaminateur() != null ? personLabel(s.getExaminateur().getPrenom(), s.getExaminateur().getNom()) : null);
+        dto.setSalleNom(s.getSalle() != null ? s.getSalle().getNom() : null);
+        dto.setEtudiantNom(s.getEtudiant() != null ? s.getEtudiant().getNom() : null);
+        dto.setEtudiantPrenom(s.getEtudiant() != null ? s.getEtudiant().getPrenom() : null);
+        return dto;
+    }
+
+    private String personLabel(String prenom, String nom) {
+        return ((prenom != null ? prenom : "") + " " + (nom != null ? nom : "")).trim();
     }
 }
