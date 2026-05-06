@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.time.LocalDateTime;
 
@@ -46,10 +48,8 @@ public class Soutenance {
     @JoinColumn(name = "salle_id")
     private Salle salle;
 
-    @Column(name = "etudiant_id", insertable = false, updatable = false)
-    private Integer etudiantId;
-
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "etudiant_id")
     private Etudiant etudiant;
 
