@@ -39,6 +39,15 @@ public interface SoutenanceRepository extends JpaRepository<Soutenance, Long> {
 
     boolean existsByTitre(String titre);
 
+    @Query("""
+        SELECT COUNT(s)
+        FROM Soutenance s
+        WHERE s.etudiant.id = :etudiantId
+          AND (:excludeId IS NULL OR s.id <> :excludeId)
+        """)
+    long countByEtudiantExcludingSoutenance(@Param("etudiantId") Integer etudiantId,
+                                            @Param("excludeId") Long excludeId);
+
     @Query(value = """
         SELECT COUNT(*)
         FROM soutenances s

@@ -75,9 +75,24 @@ public class NotationOrchestrator {
         double moyenne = (noteRapport + noteExpose + noteQuestions) / 3.0;
 
         switch (roleJury.toUpperCase()) {
-            case "PRESIDENT" -> soutenance.setNotePresident((float) moyenne);
-            case "RAPPORTEUR" -> soutenance.setNoteRapporteur((float) moyenne);
-            case "EXAMINATEUR" -> soutenance.setNoteExaminateur((float) moyenne);
+            case "PRESIDENT" -> {
+                soutenance.setNotePresident((float) moyenne);
+                soutenance.setNotePresidentExpose(noteExpose);
+                soutenance.setNotePresidentRapport(noteRapport);
+                soutenance.setNotePresidentQuestions(noteQuestions);
+            }
+            case "RAPPORTEUR" -> {
+                soutenance.setNoteRapporteur((float) moyenne);
+                soutenance.setNoteRapporteurExpose(noteExpose);
+                soutenance.setNoteRapporteurRapport(noteRapport);
+                soutenance.setNoteRapporteurQuestions(noteQuestions);
+            }
+            case "EXAMINATEUR" -> {
+                soutenance.setNoteExaminateur((float) moyenne);
+                soutenance.setNoteExaminateurExpose(noteExpose);
+                soutenance.setNoteExaminateurRapport(noteRapport);
+                soutenance.setNoteExaminateurQuestions(noteQuestions);
+            }
             default -> throw new BusinessException("Role jury invalide");
         }
 
@@ -113,9 +128,9 @@ public class NotationOrchestrator {
                     soutenance.getId(),
                     soutenance.getPresident() != null ? soutenance.getPresident().getId() : null,
                     "PRESIDENT",
-                    soutenance.getNotePresident().doubleValue(),
-                    soutenance.getNotePresident().doubleValue(),
-                    soutenance.getNotePresident().doubleValue(),
+                    valueOrAverage(soutenance.getNotePresidentExpose(), soutenance.getNotePresident()),
+                    valueOrAverage(soutenance.getNotePresidentRapport(), soutenance.getNotePresident()),
+                    valueOrAverage(soutenance.getNotePresidentQuestions(), soutenance.getNotePresident()),
                     soutenance.getNotePresident().doubleValue()));
         }
 
@@ -125,9 +140,9 @@ public class NotationOrchestrator {
                     soutenance.getId(),
                     soutenance.getRapporteur() != null ? soutenance.getRapporteur().getId() : null,
                     "RAPPORTEUR",
-                    soutenance.getNoteRapporteur().doubleValue(),
-                    soutenance.getNoteRapporteur().doubleValue(),
-                    soutenance.getNoteRapporteur().doubleValue(),
+                    valueOrAverage(soutenance.getNoteRapporteurExpose(), soutenance.getNoteRapporteur()),
+                    valueOrAverage(soutenance.getNoteRapporteurRapport(), soutenance.getNoteRapporteur()),
+                    valueOrAverage(soutenance.getNoteRapporteurQuestions(), soutenance.getNoteRapporteur()),
                     soutenance.getNoteRapporteur().doubleValue()));
         }
 
@@ -137,9 +152,9 @@ public class NotationOrchestrator {
                     soutenance.getId(),
                     soutenance.getExaminateur() != null ? soutenance.getExaminateur().getId() : null,
                     "EXAMINATEUR",
-                    soutenance.getNoteExaminateur().doubleValue(),
-                    soutenance.getNoteExaminateur().doubleValue(),
-                    soutenance.getNoteExaminateur().doubleValue(),
+                    valueOrAverage(soutenance.getNoteExaminateurExpose(), soutenance.getNoteExaminateur()),
+                    valueOrAverage(soutenance.getNoteExaminateurRapport(), soutenance.getNoteExaminateur()),
+                    valueOrAverage(soutenance.getNoteExaminateurQuestions(), soutenance.getNoteExaminateur()),
                     soutenance.getNoteExaminateur().doubleValue()));
         }
 
@@ -198,14 +213,29 @@ public class NotationOrchestrator {
     }
 
     private NoteDTO toNoteDTO(Soutenance soutenance, String roleJury, Long evaluateurId) {
-        Double value;
+        Double moyenne;
+        Double expose;
+        Double rapport;
+        Double questions;
         switch (roleJury.toUpperCase()) {
-            case "PRESIDENT" -> value = soutenance.getNotePresident() != null
-                    ? soutenance.getNotePresident().doubleValue() : null;
-            case "RAPPORTEUR" -> value = soutenance.getNoteRapporteur() != null
-                    ? soutenance.getNoteRapporteur().doubleValue() : null;
-            case "EXAMINATEUR" -> value = soutenance.getNoteExaminateur() != null
-                    ? soutenance.getNoteExaminateur().doubleValue() : null;
+            case "PRESIDENT" -> {
+                moyenne = soutenance.getNotePresident() != null ? soutenance.getNotePresident().doubleValue() : null;
+                expose = valueOrAverage(soutenance.getNotePresidentExpose(), soutenance.getNotePresident());
+                rapport = valueOrAverage(soutenance.getNotePresidentRapport(), soutenance.getNotePresident());
+                questions = valueOrAverage(soutenance.getNotePresidentQuestions(), soutenance.getNotePresident());
+            }
+            case "RAPPORTEUR" -> {
+                moyenne = soutenance.getNoteRapporteur() != null ? soutenance.getNoteRapporteur().doubleValue() : null;
+                expose = valueOrAverage(soutenance.getNoteRapporteurExpose(), soutenance.getNoteRapporteur());
+                rapport = valueOrAverage(soutenance.getNoteRapporteurRapport(), soutenance.getNoteRapporteur());
+                questions = valueOrAverage(soutenance.getNoteRapporteurQuestions(), soutenance.getNoteRapporteur());
+            }
+            case "EXAMINATEUR" -> {
+                moyenne = soutenance.getNoteExaminateur() != null ? soutenance.getNoteExaminateur().doubleValue() : null;
+                expose = valueOrAverage(soutenance.getNoteExaminateurExpose(), soutenance.getNoteExaminateur());
+                rapport = valueOrAverage(soutenance.getNoteExaminateurRapport(), soutenance.getNoteExaminateur());
+                questions = valueOrAverage(soutenance.getNoteExaminateurQuestions(), soutenance.getNoteExaminateur());
+            }
             default -> throw new BusinessException("Role jury invalide");
         }
 
@@ -214,9 +244,16 @@ public class NotationOrchestrator {
                 soutenance.getId(),
                 evaluateurId,
                 roleJury.toUpperCase(),
-                value,
-                value,
-                value,
-                value);
+                expose,
+                rapport,
+                questions,
+                moyenne);
+    }
+
+    private Double valueOrAverage(Double note, Float average) {
+        if (note != null) {
+            return note;
+        }
+        return average != null ? average.doubleValue() : null;
     }
 }

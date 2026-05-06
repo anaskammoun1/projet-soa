@@ -52,8 +52,26 @@ public class Soutenance {
 
     private Float notePresident;
 
+    private Double notePresidentExpose;
+
+    private Double notePresidentRapport;
+
+    private Double notePresidentQuestions;
+
     private Float noteRapporteur;
 
+    private Double noteRapporteurExpose;
+
+    private Double noteRapporteurRapport;
+
+    private Double noteRapporteurQuestions;
+
     private Float noteExaminateur;
+
+    private Double noteExaminateurExpose;
+
+    private Double noteExaminateurRapport;
+
+    private Double noteExaminateurQuestions;
 
 }

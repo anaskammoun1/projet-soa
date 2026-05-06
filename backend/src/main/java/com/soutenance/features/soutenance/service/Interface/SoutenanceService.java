@@ -19,6 +19,7 @@ public interface SoutenanceService {
     boolean existsConflitSalle(Long salleId, LocalDateTime date, LocalDateTime fin, Long excludeSoutenanceId);
     boolean existsConflitEncadrant(Long enseignantId, LocalDateTime date, LocalDateTime fin, Long excludeSoutenanceId);
     boolean existsConflitEtudiant(Integer etudiantId, LocalDateTime date, LocalDateTime fin, Long excludeSoutenanceId);
+    boolean existsSoutenanceForEtudiant(Integer etudiantId, Long excludeSoutenanceId);
     boolean isTeacherAssignedToEtudiant(Long enseignantId, Integer etudiantId);
     Soutenance getOrThrow(Long id);
     Soutenance save(Soutenance s);

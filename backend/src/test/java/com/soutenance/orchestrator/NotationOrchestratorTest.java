@@ -57,7 +57,13 @@ class NotationOrchestratorTest {
         NoteDTO response = orchestrator.saisirNote(new NoteDTO(1L, 10L, 1L, "PRESIDENT", 15.0, 12.0, 18.0, null));
 
         assertThat(response.getMoyenneEvaluateur()).isEqualTo(15.0);
+        assertThat(response.getNoteExpose()).isEqualTo(15.0);
+        assertThat(response.getNoteRapport()).isEqualTo(12.0);
+        assertThat(response.getNoteQuestions()).isEqualTo(18.0);
         assertThat(soutenance.getNotePresident()).isEqualTo(15.0f);
+        assertThat(soutenance.getNotePresidentExpose()).isEqualTo(15.0);
+        assertThat(soutenance.getNotePresidentRapport()).isEqualTo(12.0);
+        assertThat(soutenance.getNotePresidentQuestions()).isEqualTo(18.0);
         verify(soutenanceService).save(soutenance);
     }
 

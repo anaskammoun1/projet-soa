@@ -43,28 +43,16 @@ public class PlanificationOrchestrator {
     @Transactional
     public Soutenance modifierSoutenance(Long id, SoutenanceDTO dto) {
         Soutenance existing = soutenanceService.getOrThrow(id);
-        ensureFinishedSoutenanceIsNotReplanned(existing, dto);
+        ensureSoutenanceCanBeModified(existing);
         Soutenance merged = merge(existing, dto);
         clearChangedJuryNotes(existing, merged);
         validateRequired(toDtoShape(merged));
         return planifierSoutenance(merged, id);
     }
 
-    private void ensureFinishedSoutenanceIsNotReplanned(Soutenance existing, SoutenanceDTO dto) {
-        if (existing.getStatut() != StatutSoutenance.TERMINEE) {
-            return;
-        }
-
-        boolean changesPlanning = (dto.getDate() != null && !dto.getDate().equals(existing.getDate()))
-                || (dto.getDuree() > 0 && dto.getDuree() != existing.getDuree())
-                || (dto.getPresidentId() != null && !dto.getPresidentId().equals(idOf(existing.getPresident())))
-                || (dto.getRapporteurId() != null && !dto.getRapporteurId().equals(idOf(existing.getRapporteur())))
-                || (dto.getExaminateurId() != null && !dto.getExaminateurId().equals(idOf(existing.getExaminateur())))
-                || (dto.getSalleId() != null && (existing.getSalle() == null || !dto.getSalleId().equals(existing.getSalle().getId())))
-                || (dto.getEtudiantId() != null && (existing.getEtudiant() == null || !dto.getEtudiantId().equals(existing.getEtudiant().getId())));
-
-        if (changesPlanning) {
-            throw new BusinessException("Une soutenance terminee ne peut plus etre replanifiee");
+    private void ensureSoutenanceCanBeModified(Soutenance existing) {
+        if (existing.getStatut() == StatutSoutenance.TERMINEE) {
+            throw new BusinessException("Une soutenance terminee ne peut plus etre modifiee");
         }
     }
 
@@ -94,6 +82,10 @@ public class PlanificationOrchestrator {
 
         if (soutenanceService.existsConflitEtudiant(etudiant.getId(), debut, fin, excludeSoutenanceId)) {
             throw new BusinessException("Conflit horaire pour l'etudiant");
+        }
+
+        if (soutenanceService.existsSoutenanceForEtudiant(etudiant.getId(), excludeSoutenanceId)) {
+            throw new BusinessException("Cet etudiant a deja une soutenance");
         }
 
         soutenance.setEtudiant(etudiant);
@@ -156,14 +148,23 @@ public class PlanificationOrchestrator {
         boolean changed = false;
         if (!sameId(existing.getPresident(), merged.getPresident())) {
             merged.setNotePresident(null);
+            merged.setNotePresidentExpose(null);
+            merged.setNotePresidentRapport(null);
+            merged.setNotePresidentQuestions(null);
             changed = true;
         }
         if (!sameId(existing.getRapporteur(), merged.getRapporteur())) {
             merged.setNoteRapporteur(null);
+            merged.setNoteRapporteurExpose(null);
+            merged.setNoteRapporteurRapport(null);
+            merged.setNoteRapporteurQuestions(null);
             changed = true;
         }
         if (!sameId(existing.getExaminateur(), merged.getExaminateur())) {
             merged.setNoteExaminateur(null);
+            merged.setNoteExaminateurExpose(null);
+            merged.setNoteExaminateurRapport(null);
+            merged.setNoteExaminateurQuestions(null);
             changed = true;
         }
         if (changed) {

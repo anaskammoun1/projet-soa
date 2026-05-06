@@ -94,6 +94,36 @@ class PlanificationOrchestratorTest {
         verify(soutenanceService, never()).save(any(Soutenance.class));
     }
 
+    @Test
+    void planifierSoutenanceRejectsStudentAlreadyAssignedToAnotherSoutenance() {
+        SoutenanceDTO dto = dto();
+        when(etudiantService.getOrThrow(7)).thenReturn(etudiant(7));
+        when(enseignantService.getOrThrow(1L)).thenReturn(enseignant(1L));
+        when(enseignantService.getOrThrow(2L)).thenReturn(enseignant(2L));
+        when(enseignantService.getOrThrow(3L)).thenReturn(enseignant(3L));
+        when(salleService.getOrThrow(4L)).thenReturn(new Salle(4L, "A1", 20, "Bloc A", true));
+        when(soutenanceService.existsSoutenanceForEtudiant(7, null)).thenReturn(true);
+
+        assertThatThrownBy(() -> orchestrator.planifierSoutenance(dto))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("Cet etudiant a deja une soutenance");
+        verify(soutenanceService, never()).save(any(Soutenance.class));
+    }
+
+    @Test
+    void modifierSoutenanceRejectsFinishedSoutenance() {
+        Soutenance existing = new Soutenance();
+        existing.setId(12L);
+        existing.setStatut(StatutSoutenance.TERMINEE);
+        when(soutenanceService.getOrThrow(12L)).thenReturn(existing);
+
+        assertThatThrownBy(() -> orchestrator.modifierSoutenance(12L, dto()))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("terminee ne peut plus etre modifiee");
+
+        verify(soutenanceService, never()).save(any(Soutenance.class));
+    }
+
     private SoutenanceDTO dto() {
         return new SoutenanceDTO(
                 null,

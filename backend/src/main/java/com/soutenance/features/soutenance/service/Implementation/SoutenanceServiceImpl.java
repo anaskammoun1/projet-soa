@@ -141,6 +141,11 @@ public class SoutenanceServiceImpl implements SoutenanceService {
     }
 
     @Override
+    public boolean existsSoutenanceForEtudiant(Integer etudiantId, Long excludeSoutenanceId) {
+        return repository.countByEtudiantExcludingSoutenance(etudiantId, excludeSoutenanceId) > 0;
+    }
+
+    @Override
     public boolean isTeacherAssignedToEtudiant(Long enseignantId, Integer etudiantId) {
         return enseignantId != null
                 && etudiantId != null

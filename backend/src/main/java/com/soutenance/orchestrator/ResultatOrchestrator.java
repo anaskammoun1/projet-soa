@@ -4,6 +4,8 @@ import com.soutenance.exception.BusinessException;
 import com.soutenance.features.resultat.entity.Resultat;
 import com.soutenance.features.resultat.service.ResultatService;
 import com.soutenance.features.resultat.service.ResultatService.ResultatStatistics;
+import com.soutenance.features.soutenance.entity.StatutSoutenance;
+import com.soutenance.features.soutenance.service.Interface.SoutenanceService;
 import com.soutenance.security.CurrentUserService;
 import com.soutenance.security.audit.AuditService;
 import jakarta.transaction.Transactional;
@@ -20,6 +22,7 @@ public class ResultatOrchestrator {
     private final ResultatService resultatService;
     private final CurrentUserService currentUserService;
     private final AuditService auditService;
+    private final SoutenanceService soutenanceService;
 
     public List<Resultat> getAllResultats() {
         return resultatService.getAllResultats();
@@ -49,12 +52,15 @@ public class ResultatOrchestrator {
     }
 
     public Resultat validateResultat(Long id) {
-        return resultatService.validateResultat(id);
+        Resultat validated = resultatService.validateResultat(id);
+        markSoutenanceTerminee(validated);
+        return validated;
     }
 
     @Transactional
     public Resultat publishResultat(Long id) {
         Resultat published = resultatService.publishResultat(id);
+        markSoutenanceTerminee(published);
         auditService.log(
                 "RESULTAT_PUBLISHED",
                 currentUserService.getCurrentUser().getUsername(),
@@ -72,5 +78,11 @@ public class ResultatOrchestrator {
 
     public ResultatStatistics getStatistics() {
         return resultatService.getStatistics();
+    }
+
+    private void markSoutenanceTerminee(Resultat resultat) {
+        if (resultat.getSoutenanceId() != null) {
+            soutenanceService.updateStatut(resultat.getSoutenanceId(), StatutSoutenance.TERMINEE);
+        }
     }
 }
